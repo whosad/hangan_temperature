@@ -1,0 +1,10 @@
+SlimeRunner/proj.ios_mac/
+SlimeRunner/proj.win10/
+SlimeRunner/proj.win32/
+SlimeRunner/cocos2d/
+SlimeRunner/proj.android/
+SlimeRunner/proj.android-studio/
+SlimeRunner/proj.linux/
+SlimeRunner/proj.tizen/
+SlimeRunner/.cocos-project.json
+SlimeRunner/CMakeLists.txt
