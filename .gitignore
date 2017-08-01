@@ -8,3 +8,6 @@ SlimeRunner/proj.linux/
 SlimeRunner/proj.tizen/
 SlimeRunner/.cocos-project.json
 SlimeRunner/CMakeLists.txt
+*.apk
+*.jks
+SlimeRunner/.keystore

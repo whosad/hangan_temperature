@@ -100,10 +100,11 @@ void TitleScene::setupBackground()
 void TitleScene::setupTitle()
 {
     auto titleLabel = Label::createWithTTF("Slime Runner", "/FONTS/kenpixel_blocks.ttf", 85.f, Size::ZERO, TextHAlignment::CENTER, TextVAlignment::CENTER);
-    titleLabel->setColor(Color3B::GREEN);
+    titleLabel->setColor(Color3B(30, 220, 30));
     titleLabel->setPosition(_visibleSize.width / 2, _visibleSize.height * .75f);
+	titleLabel->enableShadow(Color4B::BLACK, Size(3,-3));
 
-    auto scaleEnlarge = ScaleTo::create(.75f, 1.1f);
+    auto scaleEnlarge = ScaleTo::create(.75f, 1.05f);
     auto scaleBackToNormal = ScaleTo::create(.75f, 1.f);
     auto sequence = Sequence::create(scaleEnlarge, scaleBackToNormal, nullptr);
 
