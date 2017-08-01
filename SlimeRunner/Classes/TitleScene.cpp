@@ -77,7 +77,7 @@ void TitleScene::setupBackground()
     // update 에서 화면 돌아가게 만들자
 
     // load initial image
-    _backgroundVector.pushBack(Sprite::create("/PNG/Backgrounds/blue_grass.png"));
+    _backgroundVector.pushBack(Sprite::create("PNG/Backgrounds/blue_grass.png"));
     _backgroundVector.front()->setAnchorPoint(Vec2::ZERO);
     _backgroundVector.front()->setPosition(0.f, 0.f);
     this->addChild(_backgroundVector.front());
@@ -99,7 +99,7 @@ void TitleScene::setupBackground()
 
 void TitleScene::setupTitle()
 {
-    auto titleLabel = Label::createWithTTF("Slime Runner", "/FONTS/kenpixel_blocks.ttf", 85.f, Size::ZERO, TextHAlignment::CENTER, TextVAlignment::CENTER);
+    auto titleLabel = Label::createWithTTF("Slime Runner", "FONTS/kenpixel_blocks.ttf", 85.f, Size::ZERO, TextHAlignment::CENTER, TextVAlignment::CENTER);
     titleLabel->setColor(Color3B(30, 220, 30));
     titleLabel->setPosition(_visibleSize.width / 2, _visibleSize.height * .75f);
 	titleLabel->enableShadow(Color4B::BLACK, Size(3,-3));
