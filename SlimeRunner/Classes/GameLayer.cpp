@@ -29,6 +29,28 @@ bool GameLayer::init()
     touchListener->onTouchBegan = CC_CALLBACK_2(GameLayer::OnTouchBegan, this);
     this->_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, this);
      
+
+	/************************************************************************/
+#ifdef _DEBUG	
+	auto keyListener = EventListenerKeyboard::create();
+	auto pointerToMod = &_speedModifier;
+	keyListener->onKeyPressed = [pointerToMod](EventKeyboard::KeyCode keyCode, Event* event){
+		if (keyCode == EventKeyboard::KeyCode::KEY_SPACE)
+			*pointerToMod = 5.f;
+	};
+	keyListener->onKeyReleased = [pointerToMod](EventKeyboard::KeyCode keyCode, Event* event){
+		if (keyCode == EventKeyboard::KeyCode::KEY_SPACE)
+			*pointerToMod = 1.f;
+	};
+
+	this->_eventDispatcher->addEventListenerWithSceneGraphPriority(keyListener, this);
+
+
+#endif
+	/************************************************************************/
+
+
+
     return true;
 }
 
@@ -40,6 +62,8 @@ void GameLayer::update(float dt){
 			scrollGameObjects();
 
 			playerPhysics();
+
+			updateScore(dt);
 			break;
 		case GAME_STATE::PAUSED:
 
@@ -321,6 +345,9 @@ void GameLayer::gameOverSequence()
 
 	// enable touch listener
 	this->_eventDispatcher->resumeEventListenersForTarget(this);
+	
+	// reset score
+	*_score = 0.0;
 }
 
 void GameLayer::restartComponents()
@@ -334,6 +361,7 @@ void GameLayer::restartComponents()
 
 	_obstacleSpawnRate = 8.f;
 
+
 	loadBackground();
 
 	loadPlatforms();
@@ -341,4 +369,9 @@ void GameLayer::restartComponents()
 	loadCharacter();
 
 	this->resume();
+}
+
+void GameLayer::updateScore(float dt)
+{
+	*_score += _scrollSpeed * _speedModifier * dt;
 }

@@ -28,8 +28,12 @@ bool GameScene::init()
      // game layer holds actual gameplay sprites and stuff
      _gameLayer = GameLayer::create();
      _gameLayer->setGameState(&_gameState);
-     // ui layer only holds ui components
+	 _gameLayer->setScore(&_score);
+     
+	 // ui layer only holds ui components
      _gameUILayer = GameUILayer::create();
+	 _gameUILayer->setGameState(&_gameState);
+	 _gameUILayer->setScore(&_score);
 
      // in order
      this->addChild(_gameLayer, 0);
@@ -39,7 +43,10 @@ bool GameScene::init()
 
 
      // set update
-     _gameLayer->scheduleUpdate();
+	 _gameLayer->scheduleUpdate();
+	 _gameUILayer->scheduleUpdate();
+
+
 
 	 // 백 버튼으로 종료
 	 auto touchEvent = EventListenerKeyboard::create();

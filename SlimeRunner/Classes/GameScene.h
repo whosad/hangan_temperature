@@ -34,7 +34,7 @@ private:
 
     GAME_STATE _gameState = GAME_STATE::PAUSED;
 
-    long long int _score = 0;
+	double _score = 0.0;
 
 };
 

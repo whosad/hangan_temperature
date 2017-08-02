@@ -19,6 +19,7 @@ public:
 
     // holds the pointer of game state variable inside game scene
     void setGameState(GAME_STATE* gameState){ _gameState = gameState; };
+	void setScore(double* score){ _score = score; };
 
 private:
 
@@ -48,10 +49,12 @@ private:
 	// restart ( or start new) components
 	void restartComponents();
 
+	// update score 
+	void updateScore(float dt);
+
 
     // touch began event
     bool OnTouchBegan(cocos2d::Touch* t, cocos2d::Event* e);
-
 
 
 
@@ -65,17 +68,24 @@ public:
 
 private:
 
+	// visible size
     cocos2d::Size _visibleSize;
 
-
+	// vectors of objects
     cocos2d::Vector<cocos2d::Sprite*> _backgrounds;
 	cocos2d::Vector < cocos2d::Sprite*> _tilePlatforms;
 	cocos2d::Vector < cocos2d::Sprite*> _obstacles;
 
+	// game state pointer
     GAME_STATE* _gameState;
 
+	// score pointer
+	double* _score;
+
+	// player character
     PlayerCharacter* _playerCharacter;
 
+	// scrolling speed and modifier
 	float _scrollSpeed;
 	float _speedModifier;
 
