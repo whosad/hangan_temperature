@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include "SimpleAudioEngine.h"
 
+
 USING_NS_CC;
 
 Scene* GameScene::createScene()
@@ -17,7 +18,9 @@ bool GameScene::init()
     {
         return false;
     }
-    
+
+
+
      _visibleSize = Director::getInstance()->getVisibleSize();
 //     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
@@ -36,6 +39,8 @@ bool GameScene::init()
 
      // set update
      _gameLayer->scheduleUpdate();
+
+
 
     return true;
 }

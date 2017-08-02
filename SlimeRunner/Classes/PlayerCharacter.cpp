@@ -21,7 +21,6 @@ void PlayerCharacter::initOptions()
     this->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
 
     // set move animation
-    
     // move animation has two frames
     auto spriteFrame0 = SpriteFrame::create("PNG/Enemies/slimePurple.png", this->getBoundingBox());
     auto spriteFrame1 = SpriteFrame::create("PNG/Enemies/slimePurple_move.png", this->getBoundingBox());
@@ -34,11 +33,6 @@ void PlayerCharacter::initOptions()
     moveAnimation->addSpriteFrame(spriteFrame1);
 
     _moveAnimate = RepeatForever::create(Animate::create(moveAnimation));
-    
-    // run repeatforever action
-    this->runAction(_moveAnimate);
-    
-    // jump will stop action and resume action upon landing
+	_moveAnimate->retain();
 
-    _isMidAir = true;
 }

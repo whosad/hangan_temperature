@@ -32,7 +32,9 @@ private:
     // load platforms
     void loadPlatforms();
 
-    // load obstacles
+	// setup schedule for obstacle spawn
+	void scheduleObstacleSpawns(float dt);
+
 
     // load character
     void loadCharacter();
@@ -40,9 +42,22 @@ private:
     // player physics (constant falling and collision?)
     void playerPhysics();
 
+	// game over stuff
+	void gameOverSequence();
+
+	// restart ( or start new) components
+	void restartComponents();
+
 
     // touch began event
     bool OnTouchBegan(cocos2d::Touch* t, cocos2d::Event* e);
+
+
+
+
+
+
+
 
     // Variables
 public:
@@ -52,26 +67,32 @@ private:
 
     cocos2d::Size _visibleSize;
 
-    float _scrollSpeed = 3.f;
-    float _speedModifier = 1.f;
+
     cocos2d::Vector<cocos2d::Sprite*> _backgrounds;
-    cocos2d::Vector < cocos2d::Sprite*> _tilePlatforms;
+	cocos2d::Vector < cocos2d::Sprite*> _tilePlatforms;
+	cocos2d::Vector < cocos2d::Sprite*> _obstacles;
 
     GAME_STATE* _gameState;
 
     PlayerCharacter* _playerCharacter;
 
+	float _scrollSpeed;
+	float _speedModifier;
+
     // fall speed
-    float _fallSpeed = 0.f;
-    // acceleration
-    const float _fallAcceleration = 0.2f;
+	float _fallSpeed;
+	// acceleration
+	const float _fallAcceleration = 0.45f;
     // maximum fall speed
     const float _maxFallSpeed = 13.f;
     // sign for reverse falling
-    int _reverseFall = -1;
+    int _reverseFall;
 
     // position where player comes back to when hit
     float _defaultPlayerPosX;
+
+	// obstacle spawn rate
+	float _obstacleSpawnRate;
 
 };
 

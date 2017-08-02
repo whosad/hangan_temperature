@@ -3,6 +3,7 @@
 #include "ui/CocosGUI.h"
 #include "GameScene.h"
 
+
 USING_NS_CC;
 
 Scene* TitleScene::createScene()
@@ -19,7 +20,8 @@ bool TitleScene::init()
     {
         return false;
     }
-    
+
+
      _visibleSize = Director::getInstance()->getVisibleSize();
 //     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
@@ -55,8 +57,7 @@ bool TitleScene::init()
         }
     };
     this->_eventDispatcher->addEventListenerWithSceneGraphPriority(touchEvent, this);
-
-
+	
     return true;
 }
 
@@ -118,10 +119,11 @@ void TitleScene::setupTitle()
 void TitleScene::setupStartButton()
 {
     // create button
-    auto startButton = ui::Button::create("PNG/UI_PACK/yellow_button02.png", "PNG/UI_PACK/yellow_button03.png");
+    auto startButton = ui::Button::create("PNG/UI_Pack/yellow_button02.png", "PNG/UI_Pack/yellow_button03.png");
+	this->addChild(startButton, 1);
 
     // set text
-    auto startButtonLabel = Label::createWithTTF("START", "FONTS/kenpixel_blocks.ttf", 28.f, Size::ZERO, TextHAlignment::CENTER, TextVAlignment::CENTER);
+    auto startButtonLabel = Label::createWithTTF("START", "FONTS/kenpixel_blocks.ttf", 28.f, Size::ZERO, TextHAlignment::CENTER, TextVAlignment::TOP);
     startButtonLabel->setColor(Color3B::BLACK);
     startButtonLabel->setPosition(startButton->getContentSize().width * .5f, startButton->getContentSize().height *.5f);
 
@@ -145,8 +147,8 @@ void TitleScene::setupStartButton()
         }
     );
 
+
     // set position
     startButton->setPosition(Vec2(_visibleSize.width * .5f, _visibleSize.height * .25f));
     
-    this->addChild(startButton, 1);
 }

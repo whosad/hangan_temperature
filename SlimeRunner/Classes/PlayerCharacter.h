@@ -5,13 +5,17 @@
 
 class PlayerCharacter : public cocos2d::Sprite
 {
-    // Methods
+	// Methods
 public:
 
-    static PlayerCharacter* create();
+	static PlayerCharacter* create();
 
-    bool isMidAir(){ return _isMidAir; };
-    void setMidAir(bool midAir){ _isMidAir = midAir; };
+	bool isMidAir(){ return _isMidAir; };
+	void setMidAir(bool midAir){ _isMidAir = midAir; };
+	void runMoveAnimation(){    
+		// run repeatforever action
+		this->runAction(_moveAnimate);
+	};
 
 private:
 
@@ -24,8 +28,8 @@ public:
 
 
 private:
-    cocos2d::RepeatForever* _moveAnimate;
     bool _isMidAir;
+	cocos2d::RepeatForever* _moveAnimate;
 
 };
 
