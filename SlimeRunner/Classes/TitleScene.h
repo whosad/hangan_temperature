@@ -3,6 +3,8 @@
 
 #include "cocos2d.h"
 
+class GameScene;
+
 class TitleScene : public cocos2d::Scene
 {
     // Methods

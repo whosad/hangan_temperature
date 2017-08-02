@@ -1,5 +1,7 @@
 #include "TitleScene.h"
 #include "SimpleAudioEngine.h"
+#include "ui/CocosGUI.h"
+#include "GameScene.h"
 
 USING_NS_CC;
 
@@ -40,7 +42,7 @@ bool TitleScene::init()
 
     // 백 버튼으로 종료
     auto touchEvent = EventListenerKeyboard::create();
-    touchEvent->onKeyPressed = [](EventKeyboard::KeyCode keyCode, Event* e){
+    touchEvent->onKeyReleased = [](EventKeyboard::KeyCode keyCode, Event* e){
         // quit application upon pressing back button
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
         // back button for android
@@ -99,7 +101,7 @@ void TitleScene::setupBackground()
 
 void TitleScene::setupTitle()
 {
-    auto titleLabel = Label::createWithTTF("Slime Runner", "FONTS/kenpixel_blocks.ttf", 85.f, Size::ZERO, TextHAlignment::CENTER, TextVAlignment::CENTER);
+    auto titleLabel = Label::createWithTTF("SLIME RUNNER", "FONTS/kenpixel_blocks.ttf", 85.f, Size::ZERO, TextHAlignment::CENTER, TextVAlignment::CENTER);
     titleLabel->setColor(Color3B(30, 220, 30));
     titleLabel->setPosition(_visibleSize.width / 2, _visibleSize.height * .75f);
 	titleLabel->enableShadow(Color4B::BLACK, Size(3,-3));
@@ -115,5 +117,36 @@ void TitleScene::setupTitle()
 
 void TitleScene::setupStartButton()
 {
+    // create button
+    auto startButton = ui::Button::create("PNG/UI_PACK/yellow_button02.png", "PNG/UI_PACK/yellow_button03.png");
 
+    // set text
+    auto startButtonLabel = Label::createWithTTF("START", "FONTS/kenpixel_blocks.ttf", 28.f, Size::ZERO, TextHAlignment::CENTER, TextVAlignment::CENTER);
+    startButtonLabel->setColor(Color3B::BLACK);
+    startButtonLabel->setPosition(startButton->getContentSize().width * .5f, startButton->getContentSize().height *.5f);
+
+    startButton->addChild(startButtonLabel, 0);
+
+    // button touch event
+    startButton->addTouchEventListener([startButton, startButtonLabel](Ref* sender, 
+        ui::Widget::TouchEventType type){
+            switch(type){
+                case ui::Widget::TouchEventType::ENDED:
+                    startButtonLabel->setPositionY(startButton->getContentSize().height *.5f);
+                    Director::getInstance()->replaceScene(TransitionFade::create(0.5f, GameScene::create(), Color3B::BLACK));
+                    break;
+                default:
+                    if(!startButton->isHighlighted())
+                        startButtonLabel->setPositionY(startButton->getContentSize().height *.5f);
+                    else
+                        startButtonLabel->setPositionY(startButton->getContentSize().height *.5f - 2.f);
+                    break;
+            }
+        }
+    );
+
+    // set position
+    startButton->setPosition(Vec2(_visibleSize.width * .5f, _visibleSize.height * .25f));
+    
+    this->addChild(startButton, 1);
 }
