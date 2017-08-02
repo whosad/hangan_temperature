@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include "SimpleAudioEngine.h"
 
+#include "TitleScene.h"
 
 USING_NS_CC;
 
@@ -39,6 +40,24 @@ bool GameScene::init()
 
      // set update
      _gameLayer->scheduleUpdate();
+
+	 // 백 버튼으로 종료
+	 auto touchEvent = EventListenerKeyboard::create();
+	 touchEvent->onKeyReleased = [=](EventKeyboard::KeyCode keyCode, Event* e){
+		 // quit application upon pressing back button
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+		 // back button for android
+		 if (keyCode == EventKeyboard::KeyCode::KEY_BACK){
+#else
+		 // backspace for windows debugging
+		 if (keyCode == EventKeyboard::KeyCode::KEY_BACKSPACE){
+#endif
+			 _gameUILayer->pause();
+			 _gameLayer->pause();
+			 Director::getInstance()->replaceScene(TransitionFade::create(0.3f, TitleScene::create(), Color3B::BLACK));
+		 }
+		 };
+	 this->_eventDispatcher->addEventListenerWithSceneGraphPriority(touchEvent, this);
 
 
 

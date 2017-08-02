@@ -6,6 +6,8 @@
 #include "GameUILayer.h"
 #include "GameState.h"
 
+class TitleScene;
+
 class GameScene : public cocos2d::Scene
 {
     // Methods

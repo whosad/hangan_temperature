@@ -230,7 +230,7 @@ void GameLayer::playerPhysics()
 			_playerCharacter->setFlippedY(true);
 			*_gameState = GAME_STATE::OVER;
 
-			this->pauseSchedulerAndActions();
+			this->pause();
 			gameOverSequence();
 
 			break;
@@ -307,7 +307,7 @@ void GameLayer::gameOverSequence()
 	auto moveUp = MoveBy::create(.3f, Vec2(0.f, _visibleSize.height * .33f));
 	auto moveDown = MoveBy::create(.9f, Vec2(0.f, -_visibleSize.height * 1.5f));
 
-	auto move_ease_out = EaseOut::create(moveUp, 3.f);
+	auto move_ease_out = EaseOut::create(moveUp, 2.f);
 	auto move_ease_in = EaseIn::create(moveDown, 4.f);
 
 	auto tempPlayer = _playerCharacter;
@@ -340,5 +340,5 @@ void GameLayer::restartComponents()
 
 	loadCharacter();
 
-	this->resumeSchedulerAndActions();
+	this->resume();
 }
