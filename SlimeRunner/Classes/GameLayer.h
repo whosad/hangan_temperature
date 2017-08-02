@@ -40,6 +40,10 @@ private:
     // player physics (constant falling and collision?)
     void playerPhysics();
 
+
+    // touch began event
+    bool OnTouchBegan(cocos2d::Touch* t, cocos2d::Event* e);
+
     // Variables
 public:
 
@@ -57,10 +61,17 @@ private:
 
     PlayerCharacter* _playerCharacter;
 
+    // fall speed
     float _fallSpeed = 0.f;
-    const float _fallAcceleration = 0.075f;
-    const float _maxFallSpeed = 5.f;
-    float _reverseFall = -1.f;
+    // acceleration
+    const float _fallAcceleration = 0.2f;
+    // maximum fall speed
+    const float _maxFallSpeed = 13.f;
+    // sign for reverse falling
+    int _reverseFall = -1;
+
+    // position where player comes back to when hit
+    float _defaultPlayerPosX;
 
 };
 

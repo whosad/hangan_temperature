@@ -133,7 +133,7 @@ void TitleScene::setupStartButton()
             switch(type){
                 case ui::Widget::TouchEventType::ENDED:
                     startButtonLabel->setPositionY(startButton->getContentSize().height *.5f);
-                    Director::getInstance()->replaceScene(TransitionFade::create(0.5f, GameScene::create(), Color3B::BLACK));
+                    Director::getInstance()->replaceScene(TransitionFade::create(0.3f, GameScene::create(), Color3B::BLACK));
                     break;
                 default:
                     if(!startButton->isHighlighted())

@@ -26,8 +26,10 @@ bool GameLayer::init()
     loadCharacter();
 
 
-    // schedule game loop
-    this->scheduleUpdate();
+    // add touch listeners
+    auto touchListener = EventListenerTouchOneByOne::create();
+    touchListener->onTouchBegan = CC_CALLBACK_2(GameLayer::OnTouchBegan, this);
+    this->_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, this);
      
     return true;
 }
@@ -79,6 +81,9 @@ void GameLayer::scrollGameObjects()
     }
     
     // platforms
+    
+    /* 화면 벗어나면 없어지는거.. 바닥 구멍 생기는 장애물때 사용하게 될듯
+
     for(auto it = _tilePlatforms.begin(); it != _tilePlatforms.end();){
         (*it)->setPositionX((*it)->getPositionX() - _scrollSpeed * _speedModifier);
         if((*it)->getPositionX() < -(*it)->getContentSize().width * 2.f){
@@ -89,7 +94,15 @@ void GameLayer::scrollGameObjects()
             ++it;
         }
     }
-
+    */
+    for(auto tile : _tilePlatforms){
+        // move sprites
+        tile->setPositionX(tile->getPositionX() - _scrollSpeed * _speedModifier);
+        // if the position is completely off the screen, relocate it to the end of the other sprite
+        if(tile->getPositionX() <= -tile->getContentSize().width){
+            tile->setPositionX(tile->getPositionX() + tile->getContentSize().width * _tilePlatforms.size() / 2); // width * number of sprites / 2 (for top and bottom)
+        }
+    }
 
 }
 
@@ -129,12 +142,19 @@ void GameLayer::loadCharacter()
     _playerCharacter = PlayerCharacter::create();
 
     this->addChild(_playerCharacter, 0);
-    _playerCharacter->setPosition(200, 200);
+    _defaultPlayerPosX = _visibleSize.width * .33f;
+
+    _playerCharacter->setPosition(_defaultPlayerPosX / 2, _visibleSize.height * .5f);
 
 }
 
 void GameLayer::playerPhysics()
 {
+
+    // if player is behind, pull it towards default x position
+    if(_playerCharacter->getPositionX() < _defaultPlayerPosX){
+        _playerCharacter->setPositionX(MIN(_playerCharacter->getPositionX() + 1.f, _defaultPlayerPosX));
+    }
 
     // maximum falling speed is defined in the header
     _fallSpeed = MIN(_fallSpeed + _fallAcceleration, _maxFallSpeed);
@@ -146,8 +166,17 @@ void GameLayer::playerPhysics()
     // check collision
     for(auto tile : _tilePlatforms){
         if(tile->getBoundingBox().intersectsRect(_playerCharacter->getBoundingBox())){
+            auto a = _playerCharacter->getBoundingBox();
+
             _playerCharacter->setMidAir(false);
-            _playerCharacter->setPositionY(tile->getPositionY() + tile->getContentSize().height);
+
+            // on top of tile
+            if(_reverseFall < 0)
+                _playerCharacter->setPositionY(tile->getPositionY() + tile->getContentSize().height);
+            else
+                _playerCharacter->setPositionY(tile->getPositionY() - _playerCharacter->getContentSize().height);
+
+            // reset fall speed
             _fallSpeed = 0.f;
             break;
         }
@@ -157,4 +186,20 @@ void GameLayer::playerPhysics()
     }
 
  
+}
+
+bool GameLayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
+{
+    if(!_playerCharacter->isMidAir()){
+        // jump
+        // reverse fall direction
+        _reverseFall *= -1;
+        // jump player 
+        _fallSpeed = 5.f;
+        _playerCharacter->setPositionY(_playerCharacter->getPositionY() + _reverseFall);
+        
+        _playerCharacter->setFlippedY(!_playerCharacter->isFlippedY());
+    }
+
+    return true;
 }

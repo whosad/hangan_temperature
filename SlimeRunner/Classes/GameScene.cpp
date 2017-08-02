@@ -31,5 +31,11 @@ bool GameScene::init()
      this->addChild(_gameLayer, 0);
      this->addChild(_gameUILayer, 1);
 
+     // ready go and start game
+
+
+     // set update
+     _gameLayer->scheduleUpdate();
+
     return true;
 }

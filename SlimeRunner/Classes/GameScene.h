@@ -32,6 +32,8 @@ private:
 
     GAME_STATE _gameState = GAME_STATE::PAUSED;
 
+    long long int _score = 0;
+
 };
 
 #endif //__GAME_SCENE_H__
