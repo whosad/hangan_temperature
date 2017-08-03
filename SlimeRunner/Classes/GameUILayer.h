@@ -24,7 +24,11 @@ private:
 	// update function
 	void update(float dt) override;
 
+	// update score
+	void updateScore();
 
+	// setup score label
+	void setupScoreLabel();
 
 ///////// Variables ////////////////////////////
 public:
