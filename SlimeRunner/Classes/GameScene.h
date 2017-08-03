@@ -19,11 +19,14 @@ public:
     // implement the "static create()" method manually
     CREATE_FUNC(GameScene);
 
+
 private:
     
 
 
-    // Variables
+
+
+    ///////////////////////////////// Variables
 public:
 
 
@@ -34,7 +37,8 @@ private:
 
     GAME_STATE _gameState = GAME_STATE::PAUSED;
 
-	double _score = 0.0;
+    double _score = 0.0;
+
 
 };
 

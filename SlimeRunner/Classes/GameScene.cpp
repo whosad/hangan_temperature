@@ -24,6 +24,7 @@ bool GameScene::init()
 
      _visibleSize = Director::getInstance()->getVisibleSize();
 //     Vec2 origin = Director::getInstance()->getVisibleOrigin();
+    
 
      // game layer holds actual gameplay sprites and stuff
      _gameLayer = GameLayer::create();
@@ -47,8 +48,8 @@ bool GameScene::init()
 	 _gameUILayer->scheduleUpdate();
 
 
+	 // back button listener
 
-	 // 백 버튼으로 종료
 	 auto touchEvent = EventListenerKeyboard::create();
 	 touchEvent->onKeyReleased = [=](EventKeyboard::KeyCode keyCode, Event* e){
 		 // quit application upon pressing back button
@@ -70,3 +71,4 @@ bool GameScene::init()
 
     return true;
 }
+

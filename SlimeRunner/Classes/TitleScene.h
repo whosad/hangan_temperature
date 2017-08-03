@@ -2,6 +2,7 @@
 #define __TITLE_SCENE_H__
 
 #include "cocos2d.h"
+#include "ui/CocosGUI.h"
 
 class GameScene;
 
@@ -29,6 +30,17 @@ private:
     // 시작 버튼 설정
     void setupStartButton();
 
+    // 시작버튼 터치 콜백
+    void buttonTouchEvent(cocos2d::Ref* ref, cocos2d::ui::Widget::TouchEventType type);
+
+    // stage selection
+    void setupStageSelctionMenu();
+
+    // back button callback
+    void onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* e);
+
+    // hide selection menu and show title and start button
+    void hideSelectionMenu();
 
 
     // Variables
@@ -40,6 +52,15 @@ private:
     const float _SCROLLING_SPEED = 2.f;
     cocos2d::Vector<cocos2d::Sprite*> _backgroundVector;
 
+    // title label
+    cocos2d::Label* _titleLabel;
+
+    // start button and its child label
+    cocos2d::ui::Button* _startButton;
+    cocos2d::Label* _startButtonLabel;
+
+    // stage selection menu
+    cocos2d::Node* _stageSelectionMenu = nullptr;
 
 };
 

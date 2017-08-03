@@ -1,6 +1,5 @@
 #include "TitleScene.h"
 #include "SimpleAudioEngine.h"
-#include "ui/CocosGUI.h"
 #include "GameScene.h"
 
 
@@ -16,14 +15,14 @@ bool TitleScene::init()
 {
     //////////////////////////////
     // 1. super init first
-    if ( !Scene::init() )
+    if(!Scene::init())
     {
         return false;
     }
 
 
-     _visibleSize = Director::getInstance()->getVisibleSize();
-//     Vec2 origin = Director::getInstance()->getVisibleOrigin();
+    _visibleSize = Director::getInstance()->getVisibleSize();
+    //     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
     /*
     배경화면 말고 케릭터나 바닥 타일같은건 TexturePacker로 편집해서 다시 올리겠음
@@ -44,20 +43,9 @@ bool TitleScene::init()
 
     // 백 버튼으로 종료
     auto touchEvent = EventListenerKeyboard::create();
-    touchEvent->onKeyReleased = [](EventKeyboard::KeyCode keyCode, Event* e){
-        // quit application upon pressing back button
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-        // back button for android
-        if(keyCode == EventKeyboard::KeyCode::KEY_BACK){
-#else
-        // backspace for windows debugging
-        if(keyCode == EventKeyboard::KeyCode::KEY_BACKSPACE){
-#endif
-            Director::getInstance()->end();
-        }
-    };
+    touchEvent->onKeyReleased = CC_CALLBACK_2(TitleScene::onKeyReleased, this);
     this->_eventDispatcher->addEventListenerWithSceneGraphPriority(touchEvent, this);
-	
+
     return true;
 }
 
@@ -102,53 +90,199 @@ void TitleScene::setupBackground()
 
 void TitleScene::setupTitle()
 {
-    auto titleLabel = Label::createWithTTF("SLIME RUNNER", "FONTS/kenpixel_blocks.ttf", 85.f, Size::ZERO, TextHAlignment::CENTER, TextVAlignment::CENTER);
-    titleLabel->setColor(Color3B(30, 220, 30));
-    titleLabel->setPosition(_visibleSize.width / 2, _visibleSize.height * .75f);
-	titleLabel->enableShadow(Color4B::BLACK, Size(3,-3));
+    _titleLabel = Label::createWithTTF("SLIME RUNNER", "FONTS/kenpixel_blocks.ttf", 85.f, Size::ZERO, TextHAlignment::CENTER, TextVAlignment::CENTER);
+    _titleLabel->setColor(Color3B(30, 220, 30));
+    _titleLabel->setPosition(_visibleSize.width / 2, _visibleSize.height * .75f);
+    _titleLabel->enableShadow(Color4B::BLACK, Size(3, -3));
 
     auto scaleEnlarge = ScaleTo::create(.75f, 1.05f);
     auto scaleBackToNormal = ScaleTo::create(.75f, 1.f);
     auto sequence = Sequence::create(scaleEnlarge, scaleBackToNormal, nullptr);
 
-    titleLabel->runAction(RepeatForever::create(sequence));
+    _titleLabel->runAction(RepeatForever::create(sequence));
 
-    this->addChild(titleLabel, 1);
+    this->addChild(_titleLabel, 1);
 }
 
 void TitleScene::setupStartButton()
 {
     // create button
-    auto startButton = ui::Button::create("PNG/UI_Pack/yellow_button02.png", "PNG/UI_Pack/yellow_button03.png");
-	this->addChild(startButton, 1);
+    _startButton = ui::Button::create("PNG/UI_Pack/yellow_button02.png", "PNG/UI_Pack/yellow_button03.png");
+    this->addChild(_startButton, 1);
 
     // set text
-    auto startButtonLabel = Label::createWithTTF("START", "FONTS/kenpixel_blocks.ttf", 28.f, Size::ZERO, TextHAlignment::CENTER, TextVAlignment::TOP);
-    startButtonLabel->setColor(Color3B::BLACK);
-    startButtonLabel->setPosition(startButton->getContentSize().width * .5f, startButton->getContentSize().height *.5f);
+    _startButtonLabel = Label::createWithTTF("START", "FONTS/kenpixel_blocks.ttf", 28.f, Size::ZERO, TextHAlignment::CENTER, TextVAlignment::TOP);
+    _startButtonLabel->setColor(Color3B::BLACK);
+    _startButtonLabel->setPosition(_startButton->getContentSize().width * .5f, _startButton->getContentSize().height *.5f);
+    
+    _startButton->setScale(1.5f);
 
-    startButton->addChild(startButtonLabel, 0);
+    _startButton->addChild(_startButtonLabel, 0);
 
     // button touch event
-    startButton->addTouchEventListener([startButton, startButtonLabel](Ref* sender, 
-        ui::Widget::TouchEventType type){
-            switch(type){
-                case ui::Widget::TouchEventType::ENDED:
-                    startButtonLabel->setPositionY(startButton->getContentSize().height *.5f);
-                    Director::getInstance()->replaceScene(TransitionFade::create(0.3f, GameScene::create(), Color3B::BLACK));
-                    break;
-                default:
-                    if(!startButton->isHighlighted())
-                        startButtonLabel->setPositionY(startButton->getContentSize().height *.5f);
-                    else
-                        startButtonLabel->setPositionY(startButton->getContentSize().height *.5f - 2.f);
-                    break;
-            }
-        }
-    );
+    _startButton->addTouchEventListener(CC_CALLBACK_2(TitleScene::buttonTouchEvent, this));
 
 
     // set position
-    startButton->setPosition(Vec2(_visibleSize.width * .5f, _visibleSize.height * .25f));
+    _startButton->setPosition(Vec2(_visibleSize.width * .5f, _visibleSize.height * .25f));
+
+}
+
+void TitleScene::setupStageSelctionMenu()
+{
+    // CCLOG("callback good");
+
+
+    // disable and hide start button
+    _startButton->pause();
+    _startButton->setVisible(false);
+
+    // hide title as well
+    _titleLabel->setVisible(false);
+
+
+    // show and resume if already created
+    if(_stageSelectionMenu){
+        _stageSelectionMenu->setVisible(true);
+        _stageSelectionMenu->resume();
+
+    }
+    // create stage selection menu if not created already
+    else{
+        // create
+        _stageSelectionMenu = Node::create();
     
+        // icons for stages. grass, cactus, mushroom. they all use crey panel as background
+        Vector<Sprite*> stagePanels;
+
+        // duplicate panel
+        stagePanels.pushBack(Sprite::create("PNG/UI_Pack/grey_panel_2x.png"));
+        stagePanels.pushBack(Sprite::createWithSpriteFrame(stagePanels.front()->getSpriteFrame()));
+        stagePanels.pushBack(Sprite::createWithSpriteFrame(stagePanels.front()->getSpriteFrame()));
+
+        // add stage background as background
+        auto bgSize = Sprite::create("PNG/Backgrounds/colored_grass.png")->getContentSize();  // to get contents size
+        auto panelSize = stagePanels.front()->getContentSize();
+        auto subRect = Rect(
+             0.f,
+            bgSize.height * .55f - panelSize.height * .8 * .5f,
+            panelSize.width * .8f,
+            panelSize.height * .8f
+            );
+
+        // add background for icon
+        stagePanels.at(0)->addChild(Sprite::create("PNG/Backgrounds/colored_grass.png", subRect));
+        stagePanels.at(1)->addChild(Sprite::create("PNG/Backgrounds/colored_desert.png", subRect));
+        stagePanels.at(2)->addChild(Sprite::create("PNG/Backgrounds/colored_shroom.png", subRect));
+
+        // new bg size
+        bgSize = stagePanels.front()->getChildren().front()->getContentSize();
+        CCLOG("new bg  size %f, %f", bgSize.width, bgSize.height);
+
+        // set opacity for bgs..?
+        for(auto panel : stagePanels){
+            panel->getChildren().front()->setOpacity(180);
+        }
+
+        // add icon as child
+        stagePanels.at(0)->addChild(Sprite::create("PNG/Tiles/grass.png"));
+        stagePanels.at(1)->addChild(Sprite::create("PNG/Tiles/cactus.png"));
+        stagePanels.at(2)->addChild(Sprite::create("PNG/Tiles/mushroomBrown.png"));
+
+
+        // set color for disabled stages
+        // read from user default?
+        auto unlockedStage = UserDefault::sharedUserDefault()->getIntegerForKey("unlockedStage", 0);
+
+        for(int i = stagePanels.size() - 1; i  > 0 ; i--){
+            // draw node for shading
+            auto drawNode = DrawNode::create();
+            drawNode->drawSolidRect(Vec2(-bgSize.width * .5f, -bgSize.height * .5f), Vec2(bgSize.width * .5f, bgSize.height * .5f), Color4F(.95f, .95f, .95f, .85f));
+            drawNode->setName("disabledStage");
+            stagePanels.at(i)->addChild(drawNode);
+        }
+
+        // icon position
+        auto labelCenterPos = Vec2(panelSize.width * .5f, panelSize.height * .5f);
+
+        // i used for gapping stage panels
+        int i = - stagePanels.size() / 2;
+
+        for(auto panel : stagePanels){
+
+            // set positon of children to the center
+            auto children = panel->getChildren();
+            for(auto child : children){
+                child->setPosition(labelCenterPos);
+            }
+
+            // set position of panel as well
+            panel->setPosition(i++ * panelSize.width * 1.15f ,0.f);
+
+            // add panels to menu
+            _stageSelectionMenu->addChild(panel);
+        }
+
+        _stageSelectionMenu->setPosition(_visibleSize.width *.5f, _visibleSize.height *.5f);
+        this->addChild(_stageSelectionMenu, 1);
+    }
+
+}
+
+void TitleScene::buttonTouchEvent(cocos2d::Ref* ref, cocos2d::ui::Widget::TouchEventType type)
+{
+    switch(type){
+
+        case ui::Widget::TouchEventType::ENDED:
+            _startButtonLabel->setPositionY(_startButton->getContentSize().height *.5f);
+
+            //Director::getInstance()->replaceScene(TransitionFade::create(0.3f, GameScene::create(), Color3B::BLACK));
+            // display stage selction menu
+            setupStageSelctionMenu();
+
+            break;
+        default:
+            if(!_startButton->isHighlighted())
+                _startButtonLabel->setPositionY(_startButton->getContentSize().height *.5f);
+            else
+                _startButtonLabel->setPositionY(_startButton->getContentSize().height *.5f - 2.f);
+            break;
+    }
+}
+
+void TitleScene::onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* e)
+{
+    // quit application upon pressing back button
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    // back button for android
+    if(keyCode == EventKeyboard::KeyCode::KEY_BACK){
+#else
+    // backspace for windows debugging
+    if(keyCode == EventKeyboard::KeyCode::KEY_BACKSPACE){
+#endif
+        
+        // if stage selection is open, back to title label
+        if(!_titleLabel->isVisible()){
+            hideSelectionMenu();
+
+            // terminate application
+        } else{
+            Director::getInstance()->end();
+        }
+    }
+}
+
+void TitleScene::hideSelectionMenu()
+{
+    // hide and pause selection menu
+    _stageSelectionMenu->setVisible(false);
+    _stageSelectionMenu->pause();
+
+    // resume and show title and button
+    _titleLabel->setVisible(true);
+
+    _startButton->setVisible(true);
+    _startButton->resume();
+
+
 }
