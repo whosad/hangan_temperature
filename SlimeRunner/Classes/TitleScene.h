@@ -42,6 +42,8 @@ private:
     // hide selection menu and show title and start button
     void hideSelectionMenu();
 
+    // stage touch event
+    bool onStageTouchBegan(cocos2d::Touch* touch, cocos2d::Event* e);
 
     // Variables
 public:

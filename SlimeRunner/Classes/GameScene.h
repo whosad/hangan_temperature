@@ -19,6 +19,8 @@ public:
     // implement the "static create()" method manually
     CREATE_FUNC(GameScene);
 
+    // read stage data file and load obstacles
+    bool setStage(int stage);
 
 private:
     
@@ -37,9 +39,9 @@ private:
 
     GAME_STATE _gameState = GAME_STATE::PAUSED;
 
+    // score
     double _score = 0.0;
-
-
+    
 };
 
 #endif //__GAME_SCENE_H__

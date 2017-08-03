@@ -72,3 +72,9 @@ bool GameScene::init()
     return true;
 }
 
+bool GameScene::setStage(int stage)
+{
+
+    return true;
+}
+

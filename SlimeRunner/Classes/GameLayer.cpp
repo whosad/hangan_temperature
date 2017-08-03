@@ -307,7 +307,7 @@ bool GameLayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 	}
 
 
-    return true;
+    return false;
 }
 
 void GameLayer::scheduleObstacleSpawns(float dt)

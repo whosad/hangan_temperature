@@ -181,7 +181,7 @@ void TitleScene::setupStageSelctionMenu()
 
         // set opacity for bgs..?
         for(auto panel : stagePanels){
-            panel->getChildren().front()->setOpacity(180);
+            panel->getChildren().front()->setOpacity(195);
         }
 
         // add icon as child
@@ -192,14 +192,28 @@ void TitleScene::setupStageSelctionMenu()
 
         // set color for disabled stages
         // read from user default?
-        auto unlockedStage = UserDefault::sharedUserDefault()->getIntegerForKey("unlockedStage", 0);
+        auto unlockedStage = UserDefault::getInstance()->getIntegerForKey("unlockedStage", 0);
 
-        for(int i = stagePanels.size() - 1; i  > 0 ; i--){
+        // unlocked stage cannot exeed number of stages
+        unlockedStage = MIN(unlockedStage, stagePanels.size() - 1);
+
+        for(int i = stagePanels.size() - 1; i  > unlockedStage ; i--){
             // draw node for shading
             auto drawNode = DrawNode::create();
-            drawNode->drawSolidRect(Vec2(-bgSize.width * .5f, -bgSize.height * .5f), Vec2(bgSize.width * .5f, bgSize.height * .5f), Color4F(.95f, .95f, .95f, .85f));
+            drawNode->drawSolidRect(Vec2(-bgSize.width * .5f, -bgSize.height * .5f), Vec2(bgSize.width * .5f, bgSize.height * .5f), Color4F(.35f, .35f, .35f, .85f));
             drawNode->setName("disabledStage");
             stagePanels.at(i)->addChild(drawNode);
+        }
+
+        // add event listener for unlocked stages
+        auto touchEvent = EventListenerTouchOneByOne::create();
+        touchEvent->setSwallowTouches(true);
+        touchEvent->onTouchBegan = CC_CALLBACK_2(TitleScene::onStageTouchBegan, this);
+
+        // first stage always open
+        this->_eventDispatcher->addEventListenerWithSceneGraphPriority(touchEvent, stagePanels.at(0));
+        for(int i = 1; i <= unlockedStage; i++){
+            this->_eventDispatcher->addEventListenerWithSceneGraphPriority(touchEvent->clone(), stagePanels.at(i));
         }
 
         // icon position
@@ -236,7 +250,6 @@ void TitleScene::buttonTouchEvent(cocos2d::Ref* ref, cocos2d::ui::Widget::TouchE
         case ui::Widget::TouchEventType::ENDED:
             _startButtonLabel->setPositionY(_startButton->getContentSize().height *.5f);
 
-            //Director::getInstance()->replaceScene(TransitionFade::create(0.3f, GameScene::create(), Color3B::BLACK));
             // display stage selction menu
             setupStageSelctionMenu();
 
@@ -283,6 +296,47 @@ void TitleScene::hideSelectionMenu()
 
     _startButton->setVisible(true);
     _startButton->resume();
+}
 
+bool TitleScene::onStageTouchBegan(cocos2d::Touch* touch, cocos2d::Event* e)
+{
+    // find out which one is touched and proceed to selected stage
+    auto panels = _stageSelectionMenu->getChildren();
+    auto target = (Sprite*)(e->getCurrentTarget());
 
+    auto locInNode = target->convertToNodeSpace(touch->getLocation());
+    auto size = target->getContentSize();
+    auto rect = Rect(0,0,size.width, size.height);
+
+    if(rect.containsPoint(locInNode)){
+
+        // find out which stage number has been selected
+        int selectedStage = -1;
+        for(int i = 0; i < panels.size(); i++){
+            if((Sprite*)panels.at(i) == target){
+                selectedStage = i;
+                break;
+            }
+        }
+        if(selectedStage < 0){
+            CCLOG("Something weird has been touched..");
+            return false;
+        }
+
+        // go to game scene with corresponding stage data
+        auto gameScene = GameScene::create();
+
+        // check if stage fails to load
+        if(gameScene->setStage(selectedStage)){
+
+            Director::getInstance()->replaceScene(TransitionFade::create(0.3f, GameScene::create(), Color3B::BLACK));
+            return true;
+
+        }
+        else{
+            CCLOG("loading stage %d has failed", selectedStage);
+            return false;
+        }
+    }   
+    return false;
 }
