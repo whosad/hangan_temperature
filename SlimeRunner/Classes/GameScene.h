@@ -19,7 +19,10 @@ public:
     // implement the "static create()" method manually
     CREATE_FUNC(GameScene);
 
-    // read stage data file and load obstacles
+    /* 
+    Read stage data file and load obstacles.
+    @description Parses from file and load stage information.    
+    */
     bool setStage(int stage);
 
 private:
@@ -42,6 +45,9 @@ private:
     // score
     double _score = 0.0;
     
+    std::string _bgSpriteName;
+    std::string _tileSpriteName;
+
 };
 
 #endif //__GAME_SCENE_H__

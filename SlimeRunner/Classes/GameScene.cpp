@@ -29,7 +29,7 @@ bool GameScene::init()
      // game layer holds actual gameplay sprites and stuff
      _gameLayer = GameLayer::create();
      _gameLayer->setGameState(&_gameState);
-	 _gameLayer->setScore(&_score);
+     _gameLayer->setScore(&_score);
      
 	 // ui layer only holds ui components
      _gameUILayer = GameUILayer::create();
@@ -74,6 +74,23 @@ bool GameScene::init()
 
 bool GameScene::setStage(int stage)
 {
+    switch(stage)
+    {
+        case 0:
+            _bgSpriteName = "colored_grass.png";
+            _tileSpriteName = "grass";
+            break;
+        case 1:
+            _bgSpriteName = "colored_desert.png";
+            _tileSpriteName = "sand";
+            break;
+        case 2:
+            _bgSpriteName = "colored_shroom.png";
+            _tileSpriteName = "dirt";
+            break;
+    }
+
+    _gameLayer->setSpriteNames(_bgSpriteName, _tileSpriteName);
 
     return true;
 }

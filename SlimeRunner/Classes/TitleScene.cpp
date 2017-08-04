@@ -20,6 +20,9 @@ bool TitleScene::init()
         return false;
     }
 
+#ifdef _DEBUG
+    UserDefault::getInstance()->setIntegerForKey("unlockedStage", 2);
+#endif
 
     _visibleSize = Director::getInstance()->getVisibleSize();
     //     Vec2 origin = Director::getInstance()->getVisibleOrigin();
@@ -329,7 +332,7 @@ bool TitleScene::onStageTouchBegan(cocos2d::Touch* touch, cocos2d::Event* e)
         // check if stage fails to load
         if(gameScene->setStage(selectedStage)){
 
-            Director::getInstance()->replaceScene(TransitionFade::create(0.3f, GameScene::create(), Color3B::BLACK));
+            Director::getInstance()->replaceScene(TransitionFade::create(0.3f, gameScene, Color3B::BLACK));
             return true;
 
         }

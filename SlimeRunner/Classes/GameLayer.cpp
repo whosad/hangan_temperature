@@ -19,10 +19,9 @@ bool GameLayer::init()
     // set visibe size
     _visibleSize = Director::getInstance()->getVisibleSize();
 
-	restartComponents();
 
 	// set obstacle spawn schedule
-	this->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleObstacleSpawns), _obstacleSpawnRate);
+//	this->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleObstacleSpawns), _obstacleSpawnRate);
 
     // add touch listeners
     auto touchListener = EventListenerTouchOneByOne::create();
@@ -75,7 +74,9 @@ void GameLayer::update(float dt){
 void GameLayer::loadBackground()
 {
     // load initial image
-    _backgrounds.pushBack(Sprite::create("PNG/Backgrounds/colored_grass.png"));
+    std::stringstream ss;
+    ss << "PNG/Backgrounds/" << _bgSpriteName;
+    _backgrounds.pushBack(Sprite::create(ss.str()));
     _backgrounds.front()->setAnchorPoint(Vec2::ZERO);
     _backgrounds.front()->setPosition(0.f, 0.f);
     this->addChild(_backgrounds.front());
@@ -164,7 +165,9 @@ void GameLayer::scrollGameObjects()
 
 void GameLayer::loadPlatforms(){
     // 처음엔 미들 플랫폼으로 위 아래 다 깔아버려
-    auto midTile = Sprite::create("PNG/Ground/Grass/grassHalf_mid.png");
+    std::stringstream ss;
+    ss << "PNG/Ground/" << _tileSpriteName << "/" << _tileSpriteName << "Half_mid.png";
+    auto midTile = Sprite::create(ss.str());
     int numOfPlatforms = ceil(_visibleSize.width / midTile->getContentSize().width) + 1;
 
     for(int i = 0; i < numOfPlatforms; i++){
