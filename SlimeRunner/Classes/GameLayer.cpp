@@ -1,9 +1,8 @@
 #include "GameLayer.h"
 #include "SimpleAudioEngine.h"
 #include "PlayerCharacter.h"
+#include "GameStageLoader.h"
 
-#include <fstream>
-#include <cctype>
 
 USING_NS_CC;
 
@@ -24,7 +23,7 @@ bool GameLayer::init()
 
 
     // set obstacle spawn schedule
-    //	this->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleObstacleSpawns), _obstacleSpawnRate);
+    	this->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleObstacleSpawns), 1);
 
     // add touch listeners
     auto touchListener = EventListenerTouchOneByOne::create();
@@ -51,8 +50,6 @@ bool GameLayer::init()
 #endif
     /************************************************************************/
 
-    // obstacle type string and int 
-    InitTypeTagMap();
 
 
     return true;
@@ -145,6 +142,7 @@ void GameLayer::scrollGameObjects()
     }
     }
     */
+
     for(auto tile : _tilePlatforms){
         // move sprites
         tile->setPositionX(tile->getPositionX() - _scrollSpeed * _speedModifier);
@@ -253,17 +251,33 @@ void GameLayer::playerPhysics()
 
     for(auto obs : _obstacles){
 
-        if(obs->getBoundingBox().intersectsRect(_playerCharacter->getBoundingBox())){
+		auto obsRect = obs->getBoundingBox();
+		auto playerRect = _playerCharacter->getBoundingBox();
+        if(obsRect.intersectsRect(playerRect)){
+			
+			auto left = MAX(obsRect.getMinX(), playerRect.getMinX());
+			auto right = MIN(obsRect.getMaxX(), playerRect.getMaxX());
+			auto bottom = MAX(obsRect.getMinY(), playerRect.getMinY());
+			auto top = MIN(obsRect.getMaxY(), playerRect.getMaxY());
 
-            // change sprite to dead
-            _playerCharacter->stopAllActions();
-            _playerCharacter->setSpriteFrame(Sprite::create("PNG/Enemies/slimePurple_dead.png")->getSpriteFrame());
-            _playerCharacter->setFlippedX(true);
-            _playerCharacter->setFlippedY(true);
-            *_gameState = GAME_STATE::OVER;
+			auto width = right - left;
+			auto height = top - bottom;
 
-            this->pause();
-            gameOverSequence();
+			auto area = width * height;
+			
+			// dies only if intersection size if larger than some number
+			if (area > 400.f){
+
+				// change sprite to dead
+				_playerCharacter->stopAllActions();
+				_playerCharacter->setSpriteFrame(Sprite::create("PNG/Enemies/slimePurple_dead.png")->getSpriteFrame());
+				_playerCharacter->setFlippedX(true);
+				_playerCharacter->setFlippedY(true);
+				*_gameState = GAME_STATE::OVER;
+
+				this->pause();
+				gameOverSequence();
+			}
 
             break;
         }
@@ -369,7 +383,8 @@ void GameLayer::restartComponents()
 
     _obstacleSpawnRate = 8.f;
 
-    readStageFromFile();
+    //readStageFromFile();
+	_obstacleData = GameStageLoader::loadStage(_stageNumber);
 
     loadBackground();
 
@@ -383,79 +398,4 @@ void GameLayer::restartComponents()
 void GameLayer::updateScore(float dt)
 {
     *_score += _scrollSpeed * _speedModifier * dt;
-}
-
-void GameLayer::readStageFromFile()
-{
-    // stage file path
-    std::stringstream ss;
-    ss << "STAGES/stage" << _stageNumber;
-    auto stageFilePath = ss.str();
-
-    // file io
-    std::ifstream stageFile(stageFilePath);
-
-    // error check
-    if(!stageFile.is_open()){
-        CCLOG("stage file failed to open");
-
-        stageFile.close();
-        return;
-    }
-
-    // parse each line
-    std::string line;
-    while(getline(stageFile, line)){
-
-        // skip empty or commented line
-        if(line.length() <= 0)            continue;
-        else if(line[0] == '#')            continue;
-
-        // trim white spaces
-        line.erase(std::remove_if(line.begin(), line.end(), std::isspace), line.end());
-
-
-        // tokenize and parse 
-        std::pair<float, int> intervalAndType;
-        // only read first two
-        auto pos = line.find(":");
-        // first
-        ss = std::stringstream();
-        ss.str(line.substr(0, pos));
-        ss >> intervalAndType.first;
-        //second
-        ss = std::stringstream();
-        ss.str(line.substr(pos + 1, line.length()+1));
-        intervalAndType.second = _typeTagMap[ss.str()];
-
-
-        // these lines do not fall into specified format. ignoring these for now but please follow the stage file format
-
-        CCLOG("%f : %d", intervalAndType.first, intervalAndType.second);
-
-        _obstacleData.push_back(intervalAndType);
-    }
-
-    stageFile.close();
-
-
-}
-
-void GameLayer::InitTypeTagMap()
-{
-    // add tags
-    _typeTagMap["boxB"] = TAG_BOX_B;
-    _typeTagMap["boxT"] = TAG_BOX_T;
-    _typeTagMap["stairB"] = TAG_STAIR_B;
-    _typeTagMap["stairT"] = TAG_STAIR_T;
-    _typeTagMap["sawB"] = TAG_SAW_B;
-    _typeTagMap["sawT"] = TAG_SAW_T;
-    _typeTagMap["spikeB"] = TAG_SPIKE_B;
-    _typeTagMap["spikeT"] = TAG_SPIKE_T;
-    _typeTagMap["weight"] = TAG_WEIGHT;
-}
-
-void GameLayer::loadObstacles()
-{
-    throw std::logic_error("The method or operation is not implemented.");
 }

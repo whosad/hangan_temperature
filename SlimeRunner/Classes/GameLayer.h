@@ -5,16 +5,7 @@
 #include "GameState.h"
 
 class PlayerCharacter;
-
-#define TAG_BOX_T       0
-#define TAG_BOX_B       1
-#define TAG_STAIR_T     2
-#define TAG_STAIR_B     3
-#define TAG_SAW_T       4
-#define TAG_SAW_B       5
-#define TAG_SPIKE_T     6
-#define TAG_SPIKE_B     7
-#define TAG_WEIGHT      8
+class GameStageLoader;
 
 // we are using node as layer
 class GameLayer : public cocos2d::Node
@@ -70,12 +61,7 @@ private:
     // restart ( or start new) components
     void restartComponents();
 
-    // parse stage file and add obstacles
-    void readStageFromFile();
-
-    // predefine type string and tag
-    void InitTypeTagMap();
-
+    
 
 
     // touch began event
@@ -135,10 +121,6 @@ private:
 
     // stage number
     int _stageNumber;
-
-    // map of obstacle type and name
-    std::map<std::string, int> _typeTagMap;
-
     
 
 };

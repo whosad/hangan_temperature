@@ -2,11 +2,12 @@
 #define __GAME_SCENE_H__
 
 #include "cocos2d.h"
-#include "GameLayer.h"
-#include "GameUILayer.h"
 #include "GameState.h"
 
+
 class TitleScene;
+class GameLayer;
+class GameUILayer;
 
 class GameScene : public cocos2d::Scene
 {
