@@ -6,6 +6,16 @@
 
 class PlayerCharacter;
 
+#define TAG_BOX_T       0
+#define TAG_BOX_B       1
+#define TAG_STAIR_T     2
+#define TAG_STAIR_B     3
+#define TAG_SAW_T       4
+#define TAG_SAW_B       5
+#define TAG_SPIKE_T     6
+#define TAG_SPIKE_B     7
+#define TAG_WEIGHT      8
+
 // we are using node as layer
 class GameLayer : public cocos2d::Node
 {
@@ -22,7 +32,8 @@ public:
     void setScore(double* score){ _score = score; };
 
     // set sprite names
-    void setSpriteNames(std::string bgName, std::string tileName){
+    void setStageInfo(int stageNumber, std::string bgName, std::string tileName){
+        _stageNumber = stageNumber;
         _bgSpriteName = bgName;
         _tileSpriteName = tileName;
         restartComponents();
@@ -59,6 +70,12 @@ private:
     // restart ( or start new) components
     void restartComponents();
 
+    // parse stage file and add obstacles
+    void readStageFromFile();
+
+    // predefine type string and tag
+    void InitTypeTagMap();
+
 
 
     // touch began event
@@ -68,9 +85,7 @@ private:
 
 
 
-
-
-    // Variables
+///////////////// Variables
 public:
 
 
@@ -83,6 +98,8 @@ private:
     cocos2d::Vector<cocos2d::Sprite*> _backgrounds;
     cocos2d::Vector < cocos2d::Sprite*> _tilePlatforms;
     cocos2d::Vector < cocos2d::Sprite*> _obstacles;
+    // vector holds obstacle information
+    std::vector<std::pair<float, int>> _obstacleData;
 
     // game state pointer
     GAME_STATE* _gameState;
@@ -112,8 +129,17 @@ private:
     // obstacle spawn rate
     float _obstacleSpawnRate;
 
+    // string to be used to define sprite paths for stages
     std::string _bgSpriteName;
     std::string _tileSpriteName;
+
+    // stage number
+    int _stageNumber;
+
+    // map of obstacle type and name
+    std::map<std::string, int> _typeTagMap;
+
+    
 
 };
 

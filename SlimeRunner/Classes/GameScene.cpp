@@ -90,7 +90,7 @@ bool GameScene::setStage(int stage)
             break;
     }
 
-    _gameLayer->setSpriteNames(_bgSpriteName, _tileSpriteName);
+    _gameLayer->setStageInfo(stage, _bgSpriteName, _tileSpriteName);
 
     return true;
 }

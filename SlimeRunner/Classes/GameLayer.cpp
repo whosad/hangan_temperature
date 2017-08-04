@@ -2,6 +2,9 @@
 #include "SimpleAudioEngine.h"
 #include "PlayerCharacter.h"
 
+#include <fstream>
+#include <cctype>
+
 USING_NS_CC;
 
 // on "init" you need to initialize your instance
@@ -9,45 +12,47 @@ bool GameLayer::init()
 {
     //////////////////////////////
     // 1. super init first
-    if ( !Node::init() )
+    if(!Node::init())
     {
         return false;
     }
-    
+
     CCLOG("Game Layer loaded");
 
     // set visibe size
     _visibleSize = Director::getInstance()->getVisibleSize();
 
 
-	// set obstacle spawn schedule
-//	this->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleObstacleSpawns), _obstacleSpawnRate);
+    // set obstacle spawn schedule
+    //	this->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleObstacleSpawns), _obstacleSpawnRate);
 
     // add touch listeners
     auto touchListener = EventListenerTouchOneByOne::create();
     touchListener->onTouchBegan = CC_CALLBACK_2(GameLayer::OnTouchBegan, this);
     this->_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, this);
-     
 
-	/************************************************************************/
+
+    /************************************************************************/
 #ifdef _DEBUG	
-	auto keyListener = EventListenerKeyboard::create();
-	auto pointerToMod = &_speedModifier;
-	keyListener->onKeyPressed = [pointerToMod](EventKeyboard::KeyCode keyCode, Event* event){
-		if (keyCode == EventKeyboard::KeyCode::KEY_SPACE)
-			*pointerToMod = 5.f;
-	};
-	keyListener->onKeyReleased = [pointerToMod](EventKeyboard::KeyCode keyCode, Event* event){
-		if (keyCode == EventKeyboard::KeyCode::KEY_SPACE)
-			*pointerToMod = 1.f;
-	};
+    auto keyListener = EventListenerKeyboard::create();
+    auto pointerToMod = &_speedModifier;
+    keyListener->onKeyPressed = [pointerToMod](EventKeyboard::KeyCode keyCode, Event* event){
+        if(keyCode == EventKeyboard::KeyCode::KEY_SPACE)
+            *pointerToMod = 5.f;
+    };
+    keyListener->onKeyReleased = [pointerToMod](EventKeyboard::KeyCode keyCode, Event* event){
+        if(keyCode == EventKeyboard::KeyCode::KEY_SPACE)
+            *pointerToMod = 1.f;
+    };
 
-	this->_eventDispatcher->addEventListenerWithSceneGraphPriority(keyListener, this);
+    this->_eventDispatcher->addEventListenerWithSceneGraphPriority(keyListener, this);
 
 
 #endif
-	/************************************************************************/
+    /************************************************************************/
 
+    // obstacle type string and int 
+    InitTypeTagMap();
 
 
     return true;
@@ -55,19 +60,19 @@ bool GameLayer::init()
 
 void GameLayer::update(float dt){
 
-	switch (*_gameState)
-	{
-		case GAME_STATE::PLAYING:
-			scrollGameObjects();
+    switch(*_gameState)
+    {
+        case GAME_STATE::PLAYING:
+            scrollGameObjects();
 
-			playerPhysics();
+            playerPhysics();
 
-			updateScore(dt);
-			break;
-		case GAME_STATE::PAUSED:
+            updateScore(dt);
+            break;
+        case GAME_STATE::PAUSED:
 
-			break;
-	}
+            break;
+    }
 
 }
 
@@ -98,18 +103,18 @@ void GameLayer::loadBackground()
         this->addChild(_backgrounds.back());
     }
 
-	// 뿌연 효과
-	auto drawNode = DrawNode::create();
-	Vec2 rect[4];
-	rect[0] = Vec2(0, 0);
-	rect[1] = Vec2(_visibleSize.width, 0);
-	rect[2] = Vec2(_visibleSize.width, _visibleSize.height);
-	rect[3] = Vec2(0, _visibleSize.height);
+    // 뿌연 효과
+    auto drawNode = DrawNode::create();
+    Vec2 rect[4];
+    rect[0] = Vec2(0, 0);
+    rect[1] = Vec2(_visibleSize.width, 0);
+    rect[2] = Vec2(_visibleSize.width, _visibleSize.height);
+    rect[3] = Vec2(0, _visibleSize.height);
 
-	Color4F color(.8f, .95f, .95f, .55f);
-	drawNode->drawPolygon(rect, 4, color, 1, color);
+    Color4F color(.8f, .95f, .95f, .55f);
+    drawNode->drawPolygon(rect, 4, color, 1, color);
 
-	this->addChild(drawNode);
+    this->addChild(drawNode);
 
 }
 
@@ -124,20 +129,20 @@ void GameLayer::scrollGameObjects()
             bg->setPositionX(bg->getPositionX() + bg->getContentSize().width * _backgrounds.size()); // width * number of sprites
         }
     }
-    
+
     // platforms
-    
+
     /* 화면 벗어나면 없어지는거.. 바닥 구멍 생기는 장애물때 사용하게 될듯
 
     for(auto it = _tilePlatforms.begin(); it != _tilePlatforms.end();){
-        (*it)->setPositionX((*it)->getPositionX() - _scrollSpeed * _speedModifier);
-        if((*it)->getPositionX() < -(*it)->getContentSize().width * 2.f){
-            this->removeChild(*it);
-            it = _tilePlatforms.erase(it);
-        }
-        else{
-            ++it;
-        }
+    (*it)->setPositionX((*it)->getPositionX() - _scrollSpeed * _speedModifier);
+    if((*it)->getPositionX() < -(*it)->getContentSize().width * 2.f){
+    this->removeChild(*it);
+    it = _tilePlatforms.erase(it);
+    }
+    else{
+    ++it;
+    }
     }
     */
     for(auto tile : _tilePlatforms){
@@ -149,17 +154,17 @@ void GameLayer::scrollGameObjects()
         }
     }
 
-	// obstacles
-	for (auto it = _obstacles.begin(); it != _obstacles.end();){
-		(*it)->setPositionX((*it)->getPositionX() - _scrollSpeed * _speedModifier);
-		if ((*it)->getPositionX() < -(*it)->getContentSize().width * 2.f){
-			this->removeChild(*it);
-			it = _obstacles.erase(it);
-		}
-		else{
-			++it;
-		}
-	}
+    // obstacles
+    for(auto it = _obstacles.begin(); it != _obstacles.end();){
+        (*it)->setPositionX((*it)->getPositionX() - _scrollSpeed * _speedModifier);
+        if((*it)->getPositionX() < -(*it)->getContentSize().width * 2.f){
+            this->removeChild(*it);
+            it = _obstacles.erase(it);
+        }
+        else{
+            ++it;
+        }
+    }
 
 }
 
@@ -192,16 +197,16 @@ void GameLayer::loadPlatforms(){
         _tilePlatforms.pushBack(top);
         _tilePlatforms.pushBack(bottom);
     }
-    
-    
+
+
 }
 
 void GameLayer::loadCharacter()
 {
     _playerCharacter = PlayerCharacter::create();
 
-	// initial position is midair
-	_playerCharacter->setMidAir(true);
+    // initial position is midair
+    _playerCharacter->setMidAir(true);
 
     this->addChild(_playerCharacter, 1);
     _defaultPlayerPosX = _visibleSize.width * .33f;
@@ -221,8 +226,8 @@ void GameLayer::playerPhysics()
     _fallSpeed = MIN(_fallSpeed + _fallAcceleration, _maxFallSpeed);
 
     if(_playerCharacter->isMidAir()){
-        _playerCharacter->setPositionY(_playerCharacter->getPositionY() +( _reverseFall * _fallSpeed));
-        
+        _playerCharacter->setPositionY(_playerCharacter->getPositionY() + (_reverseFall * _fallSpeed));
+
     }
     // check collision
     for(auto tile : _tilePlatforms){
@@ -246,68 +251,68 @@ void GameLayer::playerPhysics()
         }
     }
 
-	for (auto obs : _obstacles){
+    for(auto obs : _obstacles){
 
-		if (obs->getBoundingBox().intersectsRect(_playerCharacter->getBoundingBox())){
+        if(obs->getBoundingBox().intersectsRect(_playerCharacter->getBoundingBox())){
 
-			// change sprite to dead
-			_playerCharacter->stopAllActions();
-			_playerCharacter->setSpriteFrame(Sprite::create("PNG/Enemies/slimePurple_dead.png")->getSpriteFrame());
-			_playerCharacter->setFlippedX(true);
-			_playerCharacter->setFlippedY(true);
-			*_gameState = GAME_STATE::OVER;
+            // change sprite to dead
+            _playerCharacter->stopAllActions();
+            _playerCharacter->setSpriteFrame(Sprite::create("PNG/Enemies/slimePurple_dead.png")->getSpriteFrame());
+            _playerCharacter->setFlippedX(true);
+            _playerCharacter->setFlippedY(true);
+            *_gameState = GAME_STATE::OVER;
 
-			this->pause();
-			gameOverSequence();
+            this->pause();
+            gameOverSequence();
 
-			break;
-		}
-	}
+            break;
+        }
+    }
 }
 
 bool GameLayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 {
-	switch (*_gameState){
-		case GAME_STATE::PLAYING:
-			if (!_playerCharacter->isMidAir()){
-				// jump
-				// reverse fall direction
-				_reverseFall *= -1;
-				// jump player 
-				_fallSpeed = 4.f;
-				_playerCharacter->setPositionY(_playerCharacter->getPositionY() + _reverseFall);
+    switch(*_gameState){
+        case GAME_STATE::PLAYING:
+            if(!_playerCharacter->isMidAir()){
+                // jump
+                // reverse fall direction
+                _reverseFall *= -1;
+                // jump player 
+                _fallSpeed = 4.f;
+                _playerCharacter->setPositionY(_playerCharacter->getPositionY() + _reverseFall);
 
-				// flip sprite
-				_playerCharacter->setFlippedY(!_playerCharacter->isFlippedY());
-			}
-			break;
+                // flip sprite
+                _playerCharacter->setFlippedY(!_playerCharacter->isFlippedY());
+            }
+            break;
 
-		case GAME_STATE::PAUSED:
-			// start game
-			_playerCharacter->runMoveAnimation();
-			*_gameState = GAME_STATE::PLAYING;
-			break;
+        case GAME_STATE::PAUSED:
+            // start game
+            _playerCharacter->runMoveAnimation();
+            *_gameState = GAME_STATE::PLAYING;
+            break;
 
-		case GAME_STATE::OVER:
+        case GAME_STATE::OVER:
 
-			/************************************************************************/
-			/* 사실 게임 오버때는 여기 말고 UI에서 터치 처리해야됨                     */
-			/************************************************************************/
-			CCLOG("Game over and touched");
+            /************************************************************************/
+            /* 사실 게임 오버때는 여기 말고 UI에서 터치 처리해야됨                     */
+            /************************************************************************/
+            CCLOG("Game over and touched");
 
-			// clean up and reset componets
-			this->removeAllChildrenWithCleanup(true);
-			_backgrounds.clear();
-			_tilePlatforms.clear();
-			_obstacles.clear();
+            // clean up and reset componets
+            this->removeAllChildrenWithCleanup(true);
+            _backgrounds.clear();
+            _tilePlatforms.clear();
+            _obstacles.clear();
 
-			restartComponents();
+            restartComponents();
 
-			*_gameState = GAME_STATE::PAUSED;
+            *_gameState = GAME_STATE::PAUSED;
 
-			break;
+            break;
 
-	}
+    }
 
 
     return false;
@@ -315,66 +320,142 @@ bool GameLayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 
 void GameLayer::scheduleObstacleSpawns(float dt)
 {
-	// there are 
+    // there are 
 
-	auto obs = Sprite::create("PNG/Tiles/boxCrate_single.png");
-	obs->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-	_obstacles.pushBack(obs);
-	this->addChild(obs);
-	obs->setPosition(_visibleSize.width, 200.f);
+    auto obs = Sprite::create("PNG/Tiles/boxCrate_single.png");
+    obs->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+    _obstacles.pushBack(obs);
+    this->addChild(obs);
+    obs->setPosition(_visibleSize.width, 200.f);
 
-	// randomize spawn rate
-	_obstacleSpawnRate = random(2.f, 6.f);
+    // randomize spawn rate
+    _obstacleSpawnRate = random(2.f, 6.f);
 
-	this->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleObstacleSpawns), _obstacleSpawnRate);
+    this->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleObstacleSpawns), _obstacleSpawnRate);
 }
 
 void GameLayer::gameOverSequence()
 {
-	auto moveUp = MoveBy::create(.3f, Vec2(0.f, _visibleSize.height * .33f));
-	auto moveDown = MoveBy::create(.9f, Vec2(0.f, -_visibleSize.height * 1.5f));
+    auto moveUp = MoveBy::create(.3f, Vec2(0.f, _visibleSize.height * .33f));
+    auto moveDown = MoveBy::create(.9f, Vec2(0.f, -_visibleSize.height * 1.5f));
 
-	auto move_ease_out = EaseOut::create(moveUp, 2.f);
-	auto move_ease_in = EaseIn::create(moveDown, 4.f);
+    auto move_ease_out = EaseOut::create(moveUp, 2.f);
+    auto move_ease_in = EaseIn::create(moveDown, 4.f);
 
-	auto tempPlayer = _playerCharacter;
-	auto deletePlayer = [tempPlayer](){
-		tempPlayer->removeFromParentAndCleanup(true);
-	};
+    auto tempPlayer = _playerCharacter;
+    auto deletePlayer = [tempPlayer](){
+        tempPlayer->removeFromParentAndCleanup(true);
+    };
 
-	auto sequence = Sequence::create(move_ease_out, move_ease_in, deletePlayer, nullptr);
+    auto sequence = Sequence::create(move_ease_out, move_ease_in, deletePlayer, nullptr);
 
-	_playerCharacter->runAction(sequence);
+    _playerCharacter->runAction(sequence);
 
-	// enable touch listener
-	this->_eventDispatcher->resumeEventListenersForTarget(this);
-	
-	// reset score
-	*_score = 0.0;
+    // enable touch listener
+    this->_eventDispatcher->resumeEventListenersForTarget(this);
+
+    // reset score
+    *_score = 0.0;
 }
 
 void GameLayer::restartComponents()
 {
-	_scrollSpeed = 3.f;
-	_speedModifier = 1.f;
+    _scrollSpeed = 3.f;
+    _speedModifier = 1.f;
 
-	_fallSpeed = 0.f;
+    _fallSpeed = 0.f;
 
-	_reverseFall = -1;
+    _reverseFall = -1;
 
-	_obstacleSpawnRate = 8.f;
+    _obstacleSpawnRate = 8.f;
 
+    readStageFromFile();
 
-	loadBackground();
+    loadBackground();
 
-	loadPlatforms();
+    loadPlatforms();
 
-	loadCharacter();
+    loadCharacter();
 
-	this->resume();
+    this->resume();
 }
 
 void GameLayer::updateScore(float dt)
 {
-	*_score += _scrollSpeed * _speedModifier * dt;
+    *_score += _scrollSpeed * _speedModifier * dt;
+}
+
+void GameLayer::readStageFromFile()
+{
+    // stage file path
+    std::stringstream ss;
+    ss << "STAGES/stage" << _stageNumber;
+    auto stageFilePath = ss.str();
+
+    // file io
+    std::ifstream stageFile(stageFilePath);
+
+    // error check
+    if(!stageFile.is_open()){
+        CCLOG("stage file failed to open");
+
+        stageFile.close();
+        return;
+    }
+
+    // parse each line
+    std::string line;
+    while(getline(stageFile, line)){
+
+        // skip empty or commented line
+        if(line.length() <= 0)            continue;
+        else if(line[0] == '#')            continue;
+
+        // trim white spaces
+        line.erase(std::remove_if(line.begin(), line.end(), std::isspace), line.end());
+
+
+        // tokenize and parse 
+        std::pair<float, int> intervalAndType;
+        // only read first two
+        auto pos = line.find(":");
+        // first
+        ss = std::stringstream();
+        ss.str(line.substr(0, pos));
+        ss >> intervalAndType.first;
+        //second
+        ss = std::stringstream();
+        ss.str(line.substr(pos + 1, line.length()+1));
+        intervalAndType.second = _typeTagMap[ss.str()];
+
+
+        // these lines do not fall into specified format. ignoring these for now but please follow the stage file format
+
+        CCLOG("%f : %d", intervalAndType.first, intervalAndType.second);
+
+        _obstacleData.push_back(intervalAndType);
+    }
+
+    stageFile.close();
+
+
+}
+
+void GameLayer::InitTypeTagMap()
+{
+    // add tags
+    _typeTagMap["boxB"] = TAG_BOX_B;
+    _typeTagMap["boxT"] = TAG_BOX_T;
+    _typeTagMap["stairB"] = TAG_STAIR_B;
+    _typeTagMap["stairT"] = TAG_STAIR_T;
+    _typeTagMap["sawB"] = TAG_SAW_B;
+    _typeTagMap["sawT"] = TAG_SAW_T;
+    _typeTagMap["spikeB"] = TAG_SPIKE_B;
+    _typeTagMap["spikeT"] = TAG_SPIKE_T;
+    _typeTagMap["weight"] = TAG_WEIGHT;
+}
+
+void GameLayer::loadObstacles()
+{
+    throw std::logic_error("The method or operation is not implemented.");
 }

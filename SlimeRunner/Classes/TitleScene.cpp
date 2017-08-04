@@ -173,6 +173,10 @@ void TitleScene::setupStageSelctionMenu()
             panelSize.height * .8f
             );
 
+        /************************************************************************/
+        /*  지금은 스테이지 3개니까 상관 없는데 나중엔 갯수만큼 인풋 받게 제네릭하게 바꿔야댐            */
+        /************************************************************************/
+
         // add background for icon
         stagePanels.at(0)->addChild(Sprite::create("PNG/Backgrounds/colored_grass.png", subRect));
         stagePanels.at(1)->addChild(Sprite::create("PNG/Backgrounds/colored_desert.png", subRect));
