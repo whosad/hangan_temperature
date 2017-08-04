@@ -303,8 +303,9 @@ bool GameLayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 
         case GAME_STATE::PAUSED:
             // start game
-            _playerCharacter->runMoveAnimation();
-            *_gameState = GAME_STATE::PLAYING;
+			startGame();
+			
+
             break;
 
         case GAME_STATE::OVER:
@@ -383,6 +384,8 @@ void GameLayer::restartComponents()
 
     _obstacleSpawnRate = 8.f;
 
+	_pixelsPassed = 0.f;
+
     //readStageFromFile();
 	_obstacleData = GameStageLoader::loadStage(_stageNumber);
 
@@ -398,4 +401,17 @@ void GameLayer::restartComponents()
 void GameLayer::updateScore(float dt)
 {
     *_score += _scrollSpeed * _speedModifier * dt;
+}
+
+void GameLayer::startGame()
+{
+	// start animation
+	_playerCharacter->runMoveAnimation();
+
+	// change game state
+	*_gameState = GAME_STATE::PLAYING;
+
+	// start spawning obstacles
+
+
 }

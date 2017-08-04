@@ -61,12 +61,12 @@ private:
     // restart ( or start new) components
     void restartComponents();
 
-    
+    // start game
+	void startGame();
 
 
     // touch began event
     bool OnTouchBegan(cocos2d::Touch* t, cocos2d::Event* e);
-
 
 
 
@@ -121,6 +121,9 @@ private:
 
     // stage number
     int _stageNumber;
+
+	// pixels passed since the start
+	float _pixelsPassed;
     
 
 };
