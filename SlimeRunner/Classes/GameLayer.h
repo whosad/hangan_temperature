@@ -64,12 +64,18 @@ private:
     // start game
 	void startGame();
 
+	// spawn objects after certain pixels
+	void obstacleSpawnFromData(float dt);
+
+	// spawn object
+	void spawnObstacle(OBSTACLE_TYPE obstacleType);
+
+
+
 
     // touch began event
     bool OnTouchBegan(cocos2d::Touch* t, cocos2d::Event* e);
-
-
-
+	void checkCollision();
 
 ///////////////// Variables
 public:
@@ -83,9 +89,9 @@ private:
     // vectors of objects
     cocos2d::Vector<cocos2d::Sprite*> _backgrounds;
     cocos2d::Vector < cocos2d::Sprite*> _tilePlatforms;
-    cocos2d::Vector < cocos2d::Sprite*> _obstacles;
+    cocos2d::Vector < cocos2d::Node*> _obstacles;
     // vector holds obstacle information
-    std::vector<std::pair<float, int>> _obstacleData;
+	std::vector<std::pair<float, OBSTACLE_TYPE>> _obstacleData;
 
     // game state pointer
     GAME_STATE* _gameState;
@@ -99,7 +105,7 @@ private:
     // scrolling speed and modifier
     float _scrollSpeed;
     float _speedModifier;
-
+		
     // fall speed
     float _fallSpeed;
     // acceleration
@@ -125,6 +131,9 @@ private:
 	// pixels passed since the start
 	float _pixelsPassed;
     
+
+	// last position to identify which direction the player is colliding with obstacles
+	cocos2d::Vec2 _lastPosition;
 
 };
 

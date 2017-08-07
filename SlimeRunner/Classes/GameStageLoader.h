@@ -3,21 +3,14 @@
 
 #include "cocos2d.h"
 
+#include "GameState.h"
+
 #include <fstream>
 #include <cctype>
 
 USING_NS_CC;
 
-// tags defined
-#define TAG_BOX_T       0
-#define TAG_BOX_B       1
-#define TAG_STAIR_T     2
-#define TAG_STAIR_B     3
-#define TAG_SAW_T       4
-#define TAG_SAW_B       5
-#define TAG_SPIKE_T     6
-#define TAG_SPIKE_B     7
-#define TAG_WEIGHT      8
+
 
 
 class GameStageLoader
@@ -26,9 +19,9 @@ class GameStageLoader
 public:
 
 	// loads stage
-	static std::vector<std::pair<float, int>> GameStageLoader::loadStage(int stageNum)
+	static std::vector<std::pair<float, OBSTACLE_TYPE>> GameStageLoader::loadStage(int stageNum)
 	{
-		std::vector<std::pair<float, int>> returnMe;
+		std::vector<std::pair<float, OBSTACLE_TYPE>> returnMe;
 
 		// stage file path
 		std::stringstream ss;
@@ -59,7 +52,7 @@ public:
 
 
 			// tokenize and parse 
-			std::pair<float, int> intervalAndType(-1.f, -1);
+			std::pair<float, OBSTACLE_TYPE> intervalAndType(-1.f, NO_OBSTACLE);
 			// only read first two
 			auto pos = line.find(":");
 			// first
