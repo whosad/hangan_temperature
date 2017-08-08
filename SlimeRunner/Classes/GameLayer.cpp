@@ -881,7 +881,7 @@ void GameLayer::checkCollision()
 				// it pushes player when collided on side (left only)
 
 				// side way, slide
-				if (obsRect.getMinX() >= _lastPosition.x && (_reverseFall > 0 ? _lastPosition.y >= obsRect.getMinY() : _lastPosition.y < obsRect.getMaxY())){
+				if (obsRect.getMinX() > _lastPosition.x && (_reverseFall > 0 ? _lastPosition.y + _playerCharacter->getContentSize().height > obsRect.getMinY() : _lastPosition.y < obsRect.getMaxY())){
 
 					_playerCharacter->setPositionX(obsRect.getMinX() - _playerCharacter->getContentSize().width * .9f);
 				}

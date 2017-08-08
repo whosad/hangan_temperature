@@ -9,16 +9,40 @@ std::vector<std::pair<float, OBSTACLE_TYPE>> GameStageLoader::loadStage(int stag
 	ss << "STAGES/stage" << stageNum;
 	auto stageFilePath = ss.str();
 
+
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+
+	auto file = FileUtils::getInstance()->getStringFromFile(ss.str());
+	std::istringstream stageFile(file);
+
+
+#else
 	// file io
 	std::ifstream stageFile(stageFilePath);
 
-	// error check
-	if (!stageFile.is_open()){
-		CCLOG("stage file failed to open");
+#endif
 
-		stageFile.close();
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	if(file.length() <= 0){
+		CCLOG("stage file  %s failed to open", stageFilePath.c_str());
+
 		return returnMe;
 	}
+
+#else
+	// error check
+	if (!stageFile.is_open()){
+		CCLOG("stage file  %s failed to open", stageFilePath.c_str());
+
+
+		stageFile.close();
+
+		return returnMe;
+	}
+
+#endif
 
 	// parse each line
 	std::string line;
@@ -91,7 +115,10 @@ std::vector<std::pair<float, OBSTACLE_TYPE>> GameStageLoader::loadStage(int stag
 		returnMe.push_back(intervalAndType);
 	}
 
+#if (CC_TARGET_PLATFORM != CC_PLATFORM_ANDROID)
+
 	stageFile.close();
+#endif
 
 	return returnMe;
 };
