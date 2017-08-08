@@ -135,6 +135,14 @@ private:
 	// last position to identify which direction the player is colliding with obstacles
 	cocos2d::Vec2 _lastPosition;
 
+	// holds background
+	cocos2d::Node* _backgroundLayer;
+
+	// holds platforms
+	cocos2d::Node* _platformLayer;
+
+	// holds obstacles
+	cocos2d::Node* _obstacleLayer;
 };
 
 #endif //__GAME_LAYER_H__

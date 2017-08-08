@@ -34,14 +34,14 @@ bool GameLayer::init()
 	/************************************************************************/
 #ifdef _DEBUG	
 	auto keyListener = EventListenerKeyboard::create();
-	auto pointerToMod = &_speedModifier;
+	auto pointerToMod = &_scrollSpeed;
 	keyListener->onKeyPressed = [pointerToMod](EventKeyboard::KeyCode keyCode, Event* event){
 		if (keyCode == EventKeyboard::KeyCode::KEY_SPACE)
-			*pointerToMod = 5.f;
+			*pointerToMod = 10.f;
 	};
 	keyListener->onKeyReleased = [pointerToMod](EventKeyboard::KeyCode keyCode, Event* event){
 		if (keyCode == EventKeyboard::KeyCode::KEY_SPACE)
-			*pointerToMod = 1.f;
+			*pointerToMod = 5.f;
 	};
 
 	this->_eventDispatcher->addEventListenerWithSceneGraphPriority(keyListener, this);
@@ -50,6 +50,13 @@ bool GameLayer::init()
 #endif
 	/************************************************************************/
 
+	_backgroundLayer = Node::create();
+	_obstacleLayer = Node::create();
+	_platformLayer = Node::create();
+
+	this->addChild(_backgroundLayer);
+	this->addChild(_obstacleLayer);
+	this->addChild(_platformLayer);
 
 	return true;
 }
@@ -75,6 +82,8 @@ void GameLayer::update(float dt){
 			// update passed number of pixels
 			_pixelsPassed += _scrollSpeed * _speedModifier;
 
+			_speedModifier += dt * 0.01f;
+
 			break;
 		case GAME_STATE::PAUSED:
 
@@ -91,7 +100,7 @@ void GameLayer::loadBackground()
 	_backgrounds.pushBack(Sprite::create(ss.str()));
 	_backgrounds.front()->setAnchorPoint(Vec2::ZERO);
 	_backgrounds.front()->setPosition(0.f, 0.f);
-	this->addChild(_backgrounds.front());
+	_backgroundLayer->addChild(_backgrounds.front());
 
 	// set number of duplicated background image using width and screen width
 	// starts at 1 since we already have one at the beginning
@@ -107,7 +116,7 @@ void GameLayer::loadBackground()
 		auto tobeset = _backgrounds.front()->getContentSize().width * i;
 		_backgrounds.back()->setPosition(_backgrounds.front()->getContentSize().width * i, 0.f);
 		// add to scene
-		this->addChild(_backgrounds.back());
+		_backgroundLayer->addChild(_backgrounds.back());
 	}
 
 	// »Ñ¿¬ È¿°ú
@@ -121,7 +130,7 @@ void GameLayer::loadBackground()
 	Color4F color(.8f, .95f, .95f, .55f);
 	drawNode->drawPolygon(rect, 4, color, 1, color);
 
-	this->addChild(drawNode);
+	_backgroundLayer->addChild(drawNode);
 
 }
 
@@ -198,8 +207,8 @@ void GameLayer::loadPlatforms(){
 		top->setFlippedY(true);
 
 		// add to node
-		this->addChild(top, 0);
-		this->addChild(bottom, 0);
+		_platformLayer->addChild(top, 0);
+		_platformLayer->addChild(bottom, 0);
 
 		// add tiles to vector for convinence
 		_tilePlatforms.pushBack(top);
@@ -346,7 +355,7 @@ void GameLayer::scheduleObstacleSpawns(float dt)
 	auto obs = Sprite::create("PNG/Tiles/boxCrate_single.png");
 	obs->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
 	_obstacles.pushBack(obs);
-	this->addChild(obs);
+	_obstacleLayer->addChild(obs);
 	obs->setPosition(_visibleSize.width, 200.f);
 
 	// randomize spawn rate
@@ -381,7 +390,7 @@ void GameLayer::gameOverSequence()
 
 void GameLayer::restartComponents()
 {
-	_scrollSpeed = 3.f;
+	_scrollSpeed = 5.f;
 	_speedModifier = 1.f;
 
 	_fallSpeed = 0.f;
@@ -410,7 +419,7 @@ void GameLayer::restartComponents()
 
 void GameLayer::updateScore(float dt)
 {
-	*_score += _scrollSpeed * _speedModifier * dt;
+	*_score += _scrollSpeed * _speedModifier * dt * 5.f;
 }
 
 void GameLayer::startGame()
@@ -551,7 +560,7 @@ void GameLayer::spawnObstacle(OBSTACLE_TYPE obstacleType)
 			obstacleNode1->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height * 2.f));
 
 			_obstacles.pushBack(obstacleNode1);
-			this->addChild(obstacleNode1, 0);
+			_obstacleLayer->addChild(obstacleNode1, 0);
 
 			// 1 box
 			auto obstacleNode2 = Node::create();
@@ -568,7 +577,7 @@ void GameLayer::spawnObstacle(OBSTACLE_TYPE obstacleType)
 			obstacleNode2->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height));
 
 			_obstacles.pushBack(obstacleNode2);
-			this->addChild(obstacleNode2, 0);
+			_obstacleLayer->addChild(obstacleNode2, 0);
 		}
 		break;
 		case TAG_STAIR_B:
@@ -615,7 +624,7 @@ void GameLayer::spawnObstacle(OBSTACLE_TYPE obstacleType)
 			obstacleNode1->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height * 2.f));
 
 			_obstacles.pushBack(obstacleNode1);
-			this->addChild(obstacleNode1, 0);
+			_obstacleLayer->addChild(obstacleNode1, 0);
 
 			// 1 box
 			auto obstacleNode2 = Node::create();
@@ -632,7 +641,7 @@ void GameLayer::spawnObstacle(OBSTACLE_TYPE obstacleType)
 			obstacleNode2->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height));
 
 			_obstacles.pushBack(obstacleNode2);
-			this->addChild(obstacleNode2, 0);
+			_obstacleLayer->addChild(obstacleNode2, 0);
 		}
 		break;
 		case TAG_SAW_T:
@@ -737,6 +746,12 @@ void GameLayer::spawnObstacle(OBSTACLE_TYPE obstacleType)
 			obstacleNode->setPosition(posX, _visibleSize.height - _tilePlatforms.front()->getContentSize().height - spike->getContentSize().height);
 			obstacleNode->setContentSize(Size(spike->getContentSize().width, spike->getContentSize().height));
 
+			// set movement
+			auto moveBy = MoveBy::create(1.f, Vec2(.0f, spike->getContentSize().height * .8f));
+			auto moveByRev = MoveBy::create(0.5f, Vec2(.0f, -spike->getContentSize().height * .8f));
+
+			auto repeatForever = RepeatForever::create(Sequence::create(moveBy, moveByRev, DelayTime::create(1.f), nullptr));
+			obstacleNode->runAction(repeatForever);
 
 		}			break;
 		case TAG_SPIKE_B:
@@ -753,7 +768,13 @@ void GameLayer::spawnObstacle(OBSTACLE_TYPE obstacleType)
 
 			obstacleNode->setPosition(posX, _tilePlatforms.front()->getContentSize().height);
 			obstacleNode->setContentSize(Size(spike->getContentSize().width, spike->getContentSize().height));
+			
+			// set movement
+			auto moveBy = MoveBy::create(1.f, Vec2(.0f, -spike->getContentSize().height * .8f));
+			auto moveByRev = MoveBy::create(0.5f, Vec2(.0f, spike->getContentSize().height * .8f));
 
+			auto repeatForever = RepeatForever::create(Sequence::create(moveBy, moveByRev, DelayTime::create(1.f), nullptr));
+			obstacleNode->runAction(repeatForever);
 		}
 			break;
 		case TAG_WEIGHT:
@@ -769,7 +790,7 @@ void GameLayer::spawnObstacle(OBSTACLE_TYPE obstacleType)
 #endif
 
 	_obstacles.pushBack(obstacleNode);
-	this->addChild(obstacleNode, 0);
+	_obstacleLayer->addChild(obstacleNode);
 
 }
 
