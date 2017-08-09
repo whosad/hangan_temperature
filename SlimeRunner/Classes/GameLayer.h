@@ -136,13 +136,13 @@ private:
 	cocos2d::Vec2 _lastPosition;
 
 	// holds background
-	cocos2d::Node* _backgroundLayer;
+	cocos2d::Node* _backgroundLayer = nullptr;
 
 	// holds platforms
-	cocos2d::Node* _platformLayer;
+       cocos2d::Node* _platformLayer = nullptr;
 
 	// holds obstacles
-	cocos2d::Node* _obstacleLayer;
+       cocos2d::Node* _obstacleLayer = nullptr;
 };
 
 #endif //__GAME_LAYER_H__

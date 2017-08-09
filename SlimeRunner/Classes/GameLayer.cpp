@@ -50,13 +50,7 @@ bool GameLayer::init()
 #endif
 	/************************************************************************/
 
-	_backgroundLayer = Node::create();
-	_obstacleLayer = Node::create();
-	_platformLayer = Node::create();
-
-	this->addChild(_backgroundLayer);
-	this->addChild(_obstacleLayer);
-	this->addChild(_platformLayer);
+ 
 
 	return true;
 }
@@ -332,10 +326,11 @@ bool GameLayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 
 			// clean up and reset componets
 			this->removeAllChildrenWithCleanup(true);
+
 			_backgrounds.clear();
 			_tilePlatforms.clear();
 			_obstacles.clear();
-
+                     
 			restartComponents();
 
 			*_gameState = GAME_STATE::PAUSED;
@@ -366,8 +361,8 @@ void GameLayer::scheduleObstacleSpawns(float dt)
 
 void GameLayer::gameOverSequence()
 {
-	auto moveUp = MoveBy::create(.3f, Vec2(0.f, _visibleSize.height * .33f));
-	auto moveDown = MoveBy::create(.9f, Vec2(0.f, -_visibleSize.height * 1.5f));
+	auto moveUp = MoveBy::create(.3f, Vec2(0.f, _visibleSize.height * .15f));
+	auto moveDown = MoveBy::create(.9f, Vec2(0.f, -_visibleSize.height * 1.15f));
 
 	auto move_ease_out = EaseOut::create(moveUp, 2.f);
 	auto move_ease_in = EaseIn::create(moveDown, 4.f);
@@ -384,8 +379,6 @@ void GameLayer::gameOverSequence()
 	// enable touch listener
 	this->_eventDispatcher->resumeEventListenersForTarget(this);
 
-	// reset score
-	*_score = 0.0;
 }
 
 void GameLayer::restartComponents()
@@ -404,7 +397,15 @@ void GameLayer::restartComponents()
 	//readStageFromFile();
 	_obstacleData = GameStageLoader::loadStage(_stageNumber);
 
+       *_score = 0.0;
 
+       _backgroundLayer = Node::create();
+       _obstacleLayer = Node::create();
+       _platformLayer = Node::create();
+
+       this->addChild(_backgroundLayer);
+       this->addChild(_obstacleLayer);
+       this->addChild(_platformLayer);
 
 	loadBackground();
 
