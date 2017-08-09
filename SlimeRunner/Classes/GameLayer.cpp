@@ -744,15 +744,15 @@ void GameLayer::spawnObstacle(OBSTACLE_TYPE obstacleType)
 
 			obstacleNode->addChild(spike);
 
-			obstacleNode->setPosition(posX, _visibleSize.height - _tilePlatforms.front()->getContentSize().height - spike->getContentSize().height);
+			obstacleNode->setPosition(posX, _visibleSize.height - _tilePlatforms.front()->getContentSize().height - spike->getContentSize().height * .95f);
 			obstacleNode->setContentSize(Size(spike->getContentSize().width, spike->getContentSize().height));
 
 			// set movement
-			auto moveBy = MoveBy::create(1.f, Vec2(.0f, spike->getContentSize().height * .8f));
-			auto moveByRev = MoveBy::create(0.5f, Vec2(.0f, -spike->getContentSize().height * .8f));
+			auto moveBy = MoveBy::create(1.f, Vec2(.0f, spike->getContentSize().height));
+			auto moveByRev = MoveBy::create(0.5f, Vec2(.0f, -spike->getContentSize().height));
 
-			auto repeatForever = RepeatForever::create(Sequence::create(moveBy, moveByRev, DelayTime::create(1.f), nullptr));
-			obstacleNode->runAction(repeatForever);
+                     auto repeatForever = RepeatForever::create(Sequence::create(moveBy, DelayTime::create(1.25f), moveByRev, nullptr));
+                     obstacleNode->runAction(repeatForever);
 
 		}			break;
 		case TAG_SPIKE_B:
@@ -767,14 +767,14 @@ void GameLayer::spawnObstacle(OBSTACLE_TYPE obstacleType)
 
 			obstacleNode->addChild(spike);
 
-			obstacleNode->setPosition(posX, _tilePlatforms.front()->getContentSize().height);
+                     obstacleNode->setPosition(posX, _tilePlatforms.front()->getContentSize().height  * .95f);
 			obstacleNode->setContentSize(Size(spike->getContentSize().width, spike->getContentSize().height));
 			
 			// set movement
-			auto moveBy = MoveBy::create(1.f, Vec2(.0f, -spike->getContentSize().height * .8f));
-			auto moveByRev = MoveBy::create(0.5f, Vec2(.0f, spike->getContentSize().height * .8f));
+			auto moveBy = MoveBy::create(1.f, Vec2(.0f, -spike->getContentSize().height ));
+			auto moveByRev = MoveBy::create(0.5f, Vec2(.0f, spike->getContentSize().height ));
 
-			auto repeatForever = RepeatForever::create(Sequence::create(moveBy, moveByRev, DelayTime::create(1.f), nullptr));
+                     auto repeatForever = RepeatForever::create(Sequence::create(moveBy, DelayTime::create(1.25f), moveByRev, nullptr));
 			obstacleNode->runAction(repeatForever);
 		}
 			break;
@@ -895,10 +895,6 @@ void GameLayer::checkCollision()
 					_playerCharacter->setPositionY((_reverseFall > 0) ? obsRect.getMinY() - _playerCharacter->getContentSize().height : obsRect.getMaxY());
 
 				}
-
-
-				return;
-
 
 			}
 		}
