@@ -20,6 +20,10 @@ void PlayerCharacter::initOptions()
     this->setFlippedX(true);
     this->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
 
+    _playerHealth = 100.f;
+    _isInvincible = false;
+    _isMidAir = true;
+
     // set move animation
     // move animation has two frames
     auto spriteFrame0 = SpriteFrame::create("PNG/Enemies/slimePurple.png", this->getBoundingBox());
@@ -35,4 +39,14 @@ void PlayerCharacter::initOptions()
     _moveAnimate = RepeatForever::create(Animate::create(moveAnimation));
 	_moveAnimate->retain();
 
+}
+
+void PlayerCharacter::runBlink()
+{
+    auto blink = Blink::create(2.f, 10);
+    auto moveBy = MoveBy::create(2.f, Vec2(-10.f, 0));
+
+    // set is hit false
+
+    this->runAction(Sequence::create(Spawn::create(blink, moveBy, nullptr), CC_CALLBACK_1(PlayerCharacter::setHit,  false), nullptr));
 }

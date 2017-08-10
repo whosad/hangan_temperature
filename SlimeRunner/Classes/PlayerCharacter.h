@@ -17,6 +17,24 @@ public:
 		this->runAction(_moveAnimate);
 	};
 
+       // hit boolean
+       bool isHit(){ return _isInvincible; };
+       void setHit(bool hit){ 
+           _isInvincible = hit;
+           // lets handle hp here
+           if(hit){
+               _playerHealth -= 10.f;
+           }
+       };
+
+       // check if dead
+       bool isDead(){ if(_playerHealth <= 0.f) return true; return false; };
+
+       // run blinking animation when hit
+       void runBlink();
+
+       const float& getHealth(){ return _playerHealth; };
+
 private:
 
     void initOptions();
@@ -28,8 +46,11 @@ public:
 
 
 private:
-    bool _isMidAir;
+    bool _isInvincible;
+    bool _isMidAir ;
 	cocos2d::RepeatForever* _moveAnimate;
+
+       float _playerHealth;
 
 };
 

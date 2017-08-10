@@ -143,6 +143,7 @@ private:
 
 	// holds obstacles
        cocos2d::Node* _obstacleLayer = nullptr;
+
 };
 
 #endif //__GAME_LAYER_H__
