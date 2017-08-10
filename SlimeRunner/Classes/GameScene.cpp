@@ -40,6 +40,10 @@ bool GameScene::init()
 	 _gameUILayer->setGameState(&_gameState);
 	 _gameUILayer->setScore(&_score);
 
+	 // mutually pointing
+	 _gameUILayer->setGameLayer(_gameLayer);
+	 _gameLayer->setGameUILayer(_gameUILayer);
+
      // in order
      this->addChild(_gameLayer, 0);
      this->addChild(_gameUILayer, 1);

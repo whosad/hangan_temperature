@@ -1,6 +1,8 @@
 #include "GameUILayer.h"
 #include "SimpleAudioEngine.h"
 
+#include "GameLayer.h"
+
 USING_NS_CC;
 
 // on "init" you need to initialize your instance
@@ -18,6 +20,7 @@ bool GameUILayer::init()
 	_visibleSize = Director::getInstance()->getVisibleSize();
 
 	setupScoreLabel();
+	setupHealthBar();
 
 
     return true;
@@ -27,7 +30,7 @@ void GameUILayer::update(float dt)
 {
 	
 	updateScore();
-
+	updateHealth();
 
 }
 
@@ -47,4 +50,16 @@ void GameUILayer::setupScoreLabel()
 	_scoreLabel->setPosition(_visibleSize.width * 0.05f, _visibleSize.height * .99f);
 	_scoreLabel->setColor(Color3B::BLACK);
 	this->addChild(_scoreLabel, 0);
+}
+
+void GameUILayer::updateHealth()
+{
+	CCLOG("player health on ui: %d", _gameLayer->getPlayerHealth());
+}
+
+void GameUILayer::setupHealthBar()
+{
+	// player has 100 hp = 5 hearts
+	
+
 }

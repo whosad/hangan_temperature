@@ -2,7 +2,7 @@
 #include "SimpleAudioEngine.h"
 #include "PlayerCharacter.h"
 #include "GameStageLoader.h"
-
+#include "GameUILayer.h"
 
 USING_NS_CC;
 
@@ -836,7 +836,6 @@ void GameLayer::checkCollision()
                         gameOverSequence();
                     }
                     else{
-                        CCLOG("player Health: %f", _playerCharacter->getHealth());
                         _playerCharacter->runBlink();
                     }
 
@@ -909,4 +908,9 @@ void GameLayer::checkCollision()
                   }
               }
 }
+}
+
+int& GameLayer::getPlayerHealth()
+{
+	return _playerCharacter->getHealthP(); 
 }

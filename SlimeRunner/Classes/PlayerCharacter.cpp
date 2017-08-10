@@ -43,10 +43,11 @@ void PlayerCharacter::initOptions()
 
 void PlayerCharacter::runBlink()
 {
-    auto blink = Blink::create(2.f, 10);
-    auto moveBy = MoveBy::create(2.f, Vec2(-10.f, 0));
+    auto blink = Blink::create(2.f, 14);
+    auto moveBy = MoveBy::create(2.f, Vec2(-50.f, 0));
 
     // set is hit false
 
-    this->runAction(Sequence::create(Spawn::create(blink, moveBy, nullptr), CC_CALLBACK_1(PlayerCharacter::setHit,  false), nullptr));
+	
+	this->runAction(Sequence::create(Spawn::create(blink, moveBy, nullptr), CallFuncN::create(CC_CALLBACK_0(PlayerCharacter::setHit, this, false)), nullptr));
 }
