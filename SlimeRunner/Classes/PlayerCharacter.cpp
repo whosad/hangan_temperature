@@ -44,7 +44,7 @@ void PlayerCharacter::initOptions()
 void PlayerCharacter::runBlink()
 {
     auto blink = Blink::create(2.f, 14);
-    auto moveBy = MoveBy::create(2.f, Vec2(-300.f, 0));
+    auto moveBy = MoveBy::create(1.33f, Vec2(-00.f, 0));
 
     // set is hit false
 

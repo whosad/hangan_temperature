@@ -43,7 +43,7 @@ void GameUILayer::updateScore()
 {
     std::stringstream ss;
 
-    ss << "Score: " << (int)*_score;
+    ss <<(int)*_score;
 
     _scoreLabel->setString(ss.str());
 

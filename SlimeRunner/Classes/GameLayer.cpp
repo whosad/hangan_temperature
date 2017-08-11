@@ -22,9 +22,6 @@ bool GameLayer::init()
     _visibleSize = Director::getInstance()->getVisibleSize();
 
 
-    // set obstacle spawn schedule
-    //this->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleObstacleSpawns), 1);
-
     // add touch listeners
     auto touchListener = EventListenerTouchOneByOne::create();
     touchListener->onTouchBegan = CC_CALLBACK_2(GameLayer::OnTouchBegan, this);
@@ -173,7 +170,7 @@ void GameLayer::scrollGameObjects()
     for(auto it = _obstacles.begin(); it != _obstacles.end();){
         (*it)->setPositionX((*it)->getPositionX() - _scrollSpeed * _speedModifier);
         if((*it)->getPositionX() < -(*it)->getContentSize().width * 2.f){
-            this->removeChild(*it);
+            _obstacleLayer->removeChild(*it, true);
             it = _obstacles.erase(it);
         }
         else{
@@ -322,6 +319,8 @@ bool GameLayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
             startGame();
             _gameUILayer->setInstruction(false);
 
+            // set obstacle spawn schedule
+            this->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleObstacleSpawns), random(5.f, 7.f));
 
             break;
 
@@ -340,6 +339,7 @@ bool GameLayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
             _obstacles.clear();
 
             restartComponents();
+            _gameUILayer->resetHealth();
 
             *_gameState = GAME_STATE::PAUSED;
 
@@ -354,15 +354,66 @@ bool GameLayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 void GameLayer::scheduleObstacleSpawns(float dt)
 {
     // there are 
+    auto obstacleNode = Node::create();
+    obstacleNode->setName("lethal");
 
-    auto obs = Sprite::create("PNG/Tiles/boxCrate_single.png");
-    obs->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-    _obstacles.pushBack(obs);
-    _obstacleLayer->addChild(obs);
-    obs->setPosition(_visibleSize.width, 200.f);
+    auto bee = Sprite::create("PNG/Enemies/bee.png");
+    auto beeMove = Sprite::create("PNG/Enemies/bee_move.png");
+
+    auto bee0 = bee->getSpriteFrame();
+    auto bee1 = beeMove->getSpriteFrame();
+
+    bee->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+    beeMove->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+    bee0->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+    bee1->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+
+    auto moveAnimation = Animation::create();
+    moveAnimation->setDelayPerUnit(0.2f);
+    moveAnimation->addSpriteFrame(bee0);
+    moveAnimation->addSpriteFrame(bee1);
+
+    auto moveAnimate = RepeatForever::create(Animate::create(moveAnimation));
+
+    bee->runAction(moveAnimate);
+
+    obstacleNode->addChild(bee);
+
+    obstacleNode->setPosition(_visibleSize.width + bee->getContentSize().width * 2.f, random(_visibleSize.height * .333f, _visibleSize.height * .667f));
+    obstacleNode->setContentSize(Size(bee->getContentSize().width, bee->getContentSize().height));
+
+    // set movement
+    // make curves ocassionally
+    int numOfCurves = random(2, 6);
+    Vector<FiniteTimeAction*> jumps;
+    // 5 secs
+    // 5  / numofjumps
+    int sign = random(0, 2) < 1 ? 1 : -1;
+    for(int i = 0; i < numOfCurves; i++){
+        auto moveBy = MoveBy::create(5.f / numOfCurves, Vec2(-800.f / numOfCurves, sign *random(150.f, 200.f)));
+        sign *= -1;
+        jumps.pushBack(moveBy);
+    }
+
+    // spawn both actions
+    obstacleNode->runAction(Sequence::create(jumps));
+    obstacleNode->setContentSize(bee->getContentSize());
+
+#ifdef _DEBUG
+    auto box = DrawNode::create();
+    auto bb = obstacleNode->getBoundingBox();
+    box->drawRect(Vec2::ZERO, bb.size, Color4F::RED);
+    box->setLineWidth(2);
+    obstacleNode->addChild(box);
+#endif
+    obstacleNode->setScale(.5f);
+
+    _obstacles.pushBack(obstacleNode);
+    _obstacleLayer->addChild(obstacleNode, 3);
+
 
     // randomize spawn rate
-    _obstacleSpawnRate = random(2.f, 6.f);
+    _obstacleSpawnRate = random(8.f, 13.f);
 
     this->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleObstacleSpawns), _obstacleSpawnRate);
 }
@@ -423,9 +474,9 @@ void GameLayer::restartComponents()
 
     loadCharacter();
 
-
-
     this->resume();
+
+
 }
 
 void GameLayer::updateScore(float dt)
@@ -453,11 +504,15 @@ void GameLayer::obstacleSpawnFromData(float dt)
         // if pixel count has reached
         if(_obstacleData.front().first <= 0.f){
 
+            do{
             // spawn data.second 
             spawnObstacle(_obstacleData.front().second);
 
             // remove
             _obstacleData.erase(_obstacleData.begin());
+
+            // keep spawning if next pixel inverval is 0
+            } while(!_obstacleData.empty()  && _obstacleData.front().first == 0);
 
         }
         else{
@@ -469,339 +524,339 @@ void GameLayer::obstacleSpawnFromData(float dt)
 
 void GameLayer::spawnObstacle(OBSTACLE_TYPE obstacleType)
 {
-    auto posX = _visibleSize.width + 50.f + _obstacleData.front().first;
+        auto posX = _visibleSize.width + 50.f + _obstacleData.front().first;
 
-    auto obstacleNode = Node::create();
-    obstacleNode->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+        auto obstacleNode = Node::create();
+        obstacleNode->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
 
-    switch(obstacleType)
-    {
-        // boxes top and bottom
-        case TAG_BOX_T:
+        switch(obstacleType)
         {
-            // 3 boxes
-            auto box1 = Sprite::create("PNG/Tiles/boxCrate_double.png");
-            auto box2 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
-            auto box3 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
+            // boxes top and bottom
+            case TAG_BOX_T:
+            {
+                // 3 boxes
+                auto box1 = Sprite::create("PNG/Tiles/boxCrate_double.png");
+                auto box2 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
+                auto box3 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
 
-            box1->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-            box2->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-            box3->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+                box1->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+                box2->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+                box3->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
 
-            box1->setPositionY(0.f);
-            box2->setPositionY(box1->getContentSize().height);
-            box3->setPositionY(box1->getContentSize().height * 2.f);
+                box1->setPositionY(0.f);
+                box2->setPositionY(box1->getContentSize().height);
+                box3->setPositionY(box1->getContentSize().height * 2.f);
 
-            obstacleNode->addChild(box1);
-            obstacleNode->addChild(box2);
-            obstacleNode->addChild(box3);
+                obstacleNode->addChild(box1);
+                obstacleNode->addChild(box2);
+                obstacleNode->addChild(box3);
 
-            obstacleNode->setPosition(posX, _visibleSize.height - _tilePlatforms.front()->getContentSize().height - box1->getContentSize().height * 3.f);
-            obstacleNode->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height * 3.f));
+                obstacleNode->setPosition(posX, _visibleSize.height - _tilePlatforms.front()->getContentSize().height - box1->getContentSize().height * 3.f);
+                obstacleNode->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height * 3.f));
 
 
 
-        }
-        break;
-        case TAG_BOX_B:
-        {
-            // 3 boxes
-            auto box1 = Sprite::create("PNG/Tiles/boxCrate_double.png");
-            auto box2 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
-            auto box3 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
-
-            box1->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-            box2->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-            box3->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-
-            box1->setPositionY(0.f);
-            box2->setPositionY(box1->getContentSize().height);
-            box3->setPositionY(box1->getContentSize().height * 2.f);
-
-            obstacleNode->addChild(box1);
-            obstacleNode->addChild(box2);
-            obstacleNode->addChild(box3);
-
-            obstacleNode->setPosition(posX, _tilePlatforms.front()->getContentSize().height);
-            obstacleNode->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height * 3.f));
-
-        }
-        break;
-        case TAG_STAIR_T:
-        {
-            // 3 2 1 boxes
-            // 3 boxes
-            auto box1 = Sprite::create("PNG/Tiles/boxCrate_double.png");
-            auto box2 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
-            auto box3 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
-
-            box1->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-            box2->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-            box3->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-
-            box1->setPositionY(0.f);
-            box2->setPositionY(box1->getContentSize().height);
-            box3->setPositionY(box1->getContentSize().height * 2.f);
-
-            obstacleNode->addChild(box1);
-            obstacleNode->addChild(box2);
-            obstacleNode->addChild(box3);
-
-            obstacleNode->setPosition(posX, _visibleSize.height - _tilePlatforms.front()->getContentSize().height - box1->getContentSize().height * 3.f);
-            obstacleNode->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height * 3.f));
-
-
-            // add 3 obstacle nodes
-            auto obstacleNode1 = Node::create();
-
-            // 2 boxes
-            auto box4 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
-            auto box5 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
-
-            box4->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-            box5->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-
-            box4->setPositionY(0.f);
-            box5->setPositionY(box1->getContentSize().height);
-
-            obstacleNode1->addChild(box4);
-            obstacleNode1->addChild(box5);
-
-            obstacleNode1->setPosition(posX + box1->getContentSize().width, _visibleSize.height - _tilePlatforms.front()->getContentSize().height - box1->getContentSize().height * 2.f);
-            obstacleNode1->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height * 2.f));
-
-            _obstacles.pushBack(obstacleNode1);
-            _obstacleLayer->addChild(obstacleNode1, 0);
-
-            // 1 box
-            auto obstacleNode2 = Node::create();
-
-            auto box6 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
-
-            box6->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-
-            box6->setPositionY(0.f);
-
-            obstacleNode2->addChild(box6);
-
-            obstacleNode2->setPosition(posX + box1->getContentSize().width*2.f, _visibleSize.height - _tilePlatforms.front()->getContentSize().height - box1->getContentSize().height);
-            obstacleNode2->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height));
-
-            _obstacles.pushBack(obstacleNode2);
-            _obstacleLayer->addChild(obstacleNode2, 0);
-        }
-        break;
-        case TAG_STAIR_B:
-        {
-            // 3 2 1 boxes
-            // 3 boxes
-            auto box1 = Sprite::create("PNG/Tiles/boxCrate_double.png");
-            auto box2 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
-            auto box3 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
-
-            box1->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-            box2->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-            box3->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-
-            box1->setPositionY(0.f);
-            box2->setPositionY(box1->getContentSize().height);
-            box3->setPositionY(box1->getContentSize().height * 2.f);
-
-            obstacleNode->addChild(box1);
-            obstacleNode->addChild(box2);
-            obstacleNode->addChild(box3);
-
-            obstacleNode->setPosition(posX + box1->getContentSize().width*2.f, _tilePlatforms.front()->getContentSize().height);
-            obstacleNode->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height * 3.f));
-
-
-            // add 3 obstacle nodes
-            auto obstacleNode1 = Node::create();
-
-            // 2 boxes
-            auto box4 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
-            auto box5 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
-
-            box4->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-            box5->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-
-            box4->setPositionY(0.f);
-            box5->setPositionY(box1->getContentSize().height);
-
-            obstacleNode1->addChild(box4);
-            obstacleNode1->addChild(box5);
-
-            obstacleNode1->setPosition(posX + box1->getContentSize().width, _tilePlatforms.front()->getContentSize().height);
-            obstacleNode1->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height * 2.f));
-
-            _obstacles.pushBack(obstacleNode1);
-            _obstacleLayer->addChild(obstacleNode1, 0);
-
-            // 1 box
-            auto obstacleNode2 = Node::create();
-
-            auto box6 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
-
-            box6->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-
-            box6->setPositionY(0.f);
-
-            obstacleNode2->addChild(box6);
-
-            obstacleNode2->setPosition(posX, _tilePlatforms.front()->getContentSize().height);
-            obstacleNode2->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height));
-
-            _obstacles.pushBack(obstacleNode2);
-            _obstacleLayer->addChild(obstacleNode2, 0);
-        }
-        break;
-        case TAG_SAW_T:
-        {
-            obstacleNode->setName("lethal");
-
-            auto saw = Sprite::create("PNG/Enemies/sawHalf.png");
-            auto sawMove = Sprite::create("PNG/Enemies/sawHalf_move.png");
-
-            saw->setFlippedY(true);
-            sawMove->setFlippedY(true);
-
-            auto saw0 = saw->getSpriteFrame();
-            auto saw1 = sawMove->getSpriteFrame();
-
-            saw0->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-            saw1->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-
-
-            auto moveAnimation = Animation::create();
-            moveAnimation->setDelayPerUnit(0.15f);
-            moveAnimation->addSpriteFrame(saw0);
-            moveAnimation->addSpriteFrame(saw1);
-
-
-            auto moveAnimate = RepeatForever::create(Animate::create(moveAnimation));
-
-            saw->runAction(moveAnimate);
-
-            saw->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-
-            saw->setPositionY(0.f);
-
-            obstacleNode->addChild(saw);
-
-            obstacleNode->setPosition(posX, _visibleSize.height - _tilePlatforms.front()->getContentSize().height - saw->getContentSize().height);
-            obstacleNode->setContentSize(Size(saw->getContentSize().width, saw->getContentSize().height));
-
-
-            // set movement
-            auto moveBy = MoveBy::create(1.f, Vec2(50.f, 0.f));
-            auto moveByRev = moveBy->clone()->reverse();
-
-            auto repeatForever = RepeatForever::create(Sequence::create(moveBy, moveByRev, nullptr));
-            obstacleNode->runAction(repeatForever);
-
-        }
-        break;
-        case TAG_SAW_B:{
-            obstacleNode->setName("lethal");
-
-            auto saw = Sprite::create("PNG/Enemies/sawHalf.png");
-            auto sawMove = Sprite::create("PNG/Enemies/sawHalf_move.png");
-
-            auto saw0 = saw->getSpriteFrame();
-            auto saw1 = sawMove->getSpriteFrame();
-
-            saw0->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-            saw1->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-
-
-            auto moveAnimation = Animation::create();
-            moveAnimation->setDelayPerUnit(0.15f);
-            moveAnimation->addSpriteFrame(saw0);
-            moveAnimation->addSpriteFrame(saw1);
-
-
-            auto moveAnimate = RepeatForever::create(Animate::create(moveAnimation));
-
-            saw->runAction(moveAnimate);
-
-            saw->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-
-            saw->setPositionY(0.f);
-
-            obstacleNode->addChild(saw);
-
-            obstacleNode->setPosition(posX, _tilePlatforms.front()->getContentSize().height);
-            obstacleNode->setContentSize(Size(saw->getContentSize().width, saw->getContentSize().height));
-
-            // set movement
-            auto moveBy = MoveBy::create(1.f, Vec2(50.f, 0.f));
-            auto moveByRev = moveBy->clone()->reverse();
-
-            auto repeatForever = RepeatForever::create(Sequence::create(moveBy, moveByRev, nullptr));
-            obstacleNode->runAction(repeatForever);
-        }
-                       break;
-        case TAG_SPIKE_T:
-        {
-            obstacleNode->setName("lethal");
-
-            auto spike = Sprite::create("PNG/Tiles/spikes.png");
-            spike->setFlippedY(true);
-
-            spike->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-
-            spike->setPositionY(0.f);
-
-            obstacleNode->addChild(spike);
-
-            obstacleNode->setPosition(posX, _visibleSize.height - _tilePlatforms.front()->getContentSize().height - spike->getContentSize().height * .95f);
-            obstacleNode->setContentSize(Size(spike->getContentSize().width, spike->getContentSize().height));
-
-            // set movement
-            auto moveBy = MoveBy::create(1.f, Vec2(.0f, spike->getContentSize().height));
-            auto moveByRev = MoveBy::create(0.5f, Vec2(.0f, -spike->getContentSize().height));
-
-            auto repeatForever = RepeatForever::create(Sequence::create(moveBy, DelayTime::create(1.25f), moveByRev, nullptr));
-            obstacleNode->runAction(repeatForever);
-
-        }			break;
-        case TAG_SPIKE_B:
-        {
-            obstacleNode->setName("lethal");
-
-            auto spike = Sprite::create("PNG/Tiles/spikes.png");
-
-            spike->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-
-            spike->setPositionY(0.f);
-
-            obstacleNode->addChild(spike);
-
-            obstacleNode->setPosition(posX, _tilePlatforms.front()->getContentSize().height  * .95f);
-            obstacleNode->setContentSize(Size(spike->getContentSize().width, spike->getContentSize().height));
-
-            // set movement
-            auto moveBy = MoveBy::create(1.f, Vec2(.0f, -spike->getContentSize().height));
-            auto moveByRev = MoveBy::create(0.5f, Vec2(.0f, spike->getContentSize().height));
-
-            auto repeatForever = RepeatForever::create(Sequence::create(moveBy, DelayTime::create(1.25f), moveByRev, nullptr));
-            obstacleNode->runAction(repeatForever);
-        }
-        break;
-        case TAG_WEIGHT:
+            }
             break;
-    }
+            case TAG_BOX_B:
+            {
+                // 3 boxes
+                auto box1 = Sprite::create("PNG/Tiles/boxCrate_double.png");
+                auto box2 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
+                auto box3 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
+
+                box1->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+                box2->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+                box3->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+
+                box1->setPositionY(0.f);
+                box2->setPositionY(box1->getContentSize().height);
+                box3->setPositionY(box1->getContentSize().height * 2.f);
+
+                obstacleNode->addChild(box1);
+                obstacleNode->addChild(box2);
+                obstacleNode->addChild(box3);
+
+                obstacleNode->setPosition(posX, _tilePlatforms.front()->getContentSize().height);
+                obstacleNode->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height * 3.f));
+
+            }
+            break;
+            case TAG_STAIR_T:
+            {
+                // 3 2 1 boxes
+                // 3 boxes
+                auto box1 = Sprite::create("PNG/Tiles/boxCrate_double.png");
+                auto box2 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
+                auto box3 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
+
+                box1->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+                box2->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+                box3->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+
+                box1->setPositionY(0.f);
+                box2->setPositionY(box1->getContentSize().height);
+                box3->setPositionY(box1->getContentSize().height * 2.f);
+
+                obstacleNode->addChild(box1);
+                obstacleNode->addChild(box2);
+                obstacleNode->addChild(box3);
+
+                obstacleNode->setPosition(posX, _visibleSize.height - _tilePlatforms.front()->getContentSize().height - box1->getContentSize().height * 3.f);
+                obstacleNode->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height * 3.f));
+
+
+                // add 3 obstacle nodes
+                auto obstacleNode1 = Node::create();
+
+                // 2 boxes
+                auto box4 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
+                auto box5 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
+
+                box4->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+                box5->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+
+                box4->setPositionY(0.f);
+                box5->setPositionY(box1->getContentSize().height);
+
+                obstacleNode1->addChild(box4);
+                obstacleNode1->addChild(box5);
+
+                obstacleNode1->setPosition(posX + box1->getContentSize().width, _visibleSize.height - _tilePlatforms.front()->getContentSize().height - box1->getContentSize().height * 2.f);
+                obstacleNode1->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height * 2.f));
+
+                _obstacles.pushBack(obstacleNode1);
+                _obstacleLayer->addChild(obstacleNode1, 0);
+
+                // 1 box
+                auto obstacleNode2 = Node::create();
+
+                auto box6 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
+
+                box6->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+
+                box6->setPositionY(0.f);
+
+                obstacleNode2->addChild(box6);
+
+                obstacleNode2->setPosition(posX + box1->getContentSize().width*2.f, _visibleSize.height - _tilePlatforms.front()->getContentSize().height - box1->getContentSize().height);
+                obstacleNode2->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height));
+
+                _obstacles.pushBack(obstacleNode2);
+                _obstacleLayer->addChild(obstacleNode2, 0);
+            }
+            break;
+            case TAG_STAIR_B:
+            {
+                // 3 2 1 boxes
+                // 3 boxes
+                auto box1 = Sprite::create("PNG/Tiles/boxCrate_double.png");
+                auto box2 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
+                auto box3 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
+
+                box1->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+                box2->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+                box3->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+
+                box1->setPositionY(0.f);
+                box2->setPositionY(box1->getContentSize().height);
+                box3->setPositionY(box1->getContentSize().height * 2.f);
+
+                obstacleNode->addChild(box1);
+                obstacleNode->addChild(box2);
+                obstacleNode->addChild(box3);
+
+                obstacleNode->setPosition(posX + box1->getContentSize().width*2.f, _tilePlatforms.front()->getContentSize().height);
+                obstacleNode->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height * 3.f));
+
+
+                // add 3 obstacle nodes
+                auto obstacleNode1 = Node::create();
+
+                // 2 boxes
+                auto box4 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
+                auto box5 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
+
+                box4->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+                box5->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+
+                box4->setPositionY(0.f);
+                box5->setPositionY(box1->getContentSize().height);
+
+                obstacleNode1->addChild(box4);
+                obstacleNode1->addChild(box5);
+
+                obstacleNode1->setPosition(posX + box1->getContentSize().width, _tilePlatforms.front()->getContentSize().height);
+                obstacleNode1->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height * 2.f));
+
+                _obstacles.pushBack(obstacleNode1);
+                _obstacleLayer->addChild(obstacleNode1, 0);
+
+                // 1 box
+                auto obstacleNode2 = Node::create();
+
+                auto box6 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
+
+                box6->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+
+                box6->setPositionY(0.f);
+
+                obstacleNode2->addChild(box6);
+
+                obstacleNode2->setPosition(posX, _tilePlatforms.front()->getContentSize().height);
+                obstacleNode2->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height));
+
+                _obstacles.pushBack(obstacleNode2);
+                _obstacleLayer->addChild(obstacleNode2, 0);
+            }
+            break;
+            case TAG_SAW_T:
+            {
+                obstacleNode->setName("lethal");
+
+                auto saw = Sprite::create("PNG/Enemies/sawHalf.png");
+                auto sawMove = Sprite::create("PNG/Enemies/sawHalf_move.png");
+
+                saw->setFlippedY(true);
+                sawMove->setFlippedY(true);
+
+                auto saw0 = saw->getSpriteFrame();
+                auto saw1 = sawMove->getSpriteFrame();
+
+                saw0->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+                saw1->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+
+
+                auto moveAnimation = Animation::create();
+                moveAnimation->setDelayPerUnit(0.05f);
+                moveAnimation->addSpriteFrame(saw0);
+                moveAnimation->addSpriteFrame(saw1);
+
+
+                auto moveAnimate = RepeatForever::create(Animate::create(moveAnimation));
+
+                saw->runAction(moveAnimate);
+
+                saw->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+
+                saw->setPositionY(0.f);
+
+                obstacleNode->addChild(saw);
+
+                obstacleNode->setPosition(posX, _visibleSize.height - _tilePlatforms.front()->getContentSize().height - saw->getContentSize().height);
+                obstacleNode->setContentSize(saw->getContentSize());
+
+
+                // set movement
+                auto moveBy = MoveBy::create(1.f, Vec2(55.f, 0.f));
+                auto moveByRev = moveBy->clone()->reverse();
+
+                auto repeatForever = RepeatForever::create(Sequence::create(moveBy, moveByRev, nullptr));
+                obstacleNode->runAction(repeatForever);
+
+            }
+            break;
+            case TAG_SAW_B:{
+                obstacleNode->setName("lethal");
+
+                auto saw = Sprite::create("PNG/Enemies/sawHalf.png");
+                auto sawMove = Sprite::create("PNG/Enemies/sawHalf_move.png");
+
+                auto saw0 = saw->getSpriteFrame();
+                auto saw1 = sawMove->getSpriteFrame();
+
+                saw0->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+                saw1->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+
+
+                auto moveAnimation = Animation::create();
+                moveAnimation->setDelayPerUnit(0.05f);
+                moveAnimation->addSpriteFrame(saw0);
+                moveAnimation->addSpriteFrame(saw1);
+
+
+                auto moveAnimate = RepeatForever::create(Animate::create(moveAnimation));
+
+                saw->runAction(moveAnimate);
+
+                saw->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+
+                saw->setPositionY(0.f);
+
+                obstacleNode->addChild(saw);
+
+                obstacleNode->setPosition(posX, _tilePlatforms.front()->getContentSize().height);
+                obstacleNode->setContentSize(saw->getContentSize());
+
+                // set movement
+                auto moveBy = MoveBy::create(1.f, Vec2(55.f, 0.f));
+                auto moveByRev = moveBy->clone()->reverse();
+
+                auto repeatForever = RepeatForever::create(Sequence::create(moveBy, moveByRev, nullptr));
+                obstacleNode->runAction(repeatForever);
+            }
+                           break;
+            case TAG_SPIKE_T:
+            {
+                obstacleNode->setName("lethal");
+
+                auto spike = Sprite::create("PNG/Tiles/spikes.png");
+                spike->setFlippedY(true);
+
+                spike->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+
+                spike->setPositionY(0.f);
+
+                obstacleNode->addChild(spike);
+
+                obstacleNode->setPosition(posX, _visibleSize.height - _tilePlatforms.front()->getContentSize().height - spike->getContentSize().height * .95f);
+                obstacleNode->setContentSize(spike->getContentSize());
+
+                // set movement
+                auto moveBy = MoveBy::create(1.f, Vec2(.0f, spike->getContentSize().height));
+                auto moveByRev = MoveBy::create(0.5f, Vec2(.0f, -spike->getContentSize().height));
+
+                auto repeatForever = RepeatForever::create(Sequence::create(moveBy, DelayTime::create(1.25f), moveByRev, nullptr));
+                obstacleNode->runAction(repeatForever);
+
+            }			break;
+            case TAG_SPIKE_B:
+            {
+                obstacleNode->setName("lethal");
+
+                auto spike = Sprite::create("PNG/Tiles/spikes.png");
+
+                spike->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+
+                spike->setPositionY(0.f);
+
+                obstacleNode->addChild(spike);
+
+                obstacleNode->setPosition(posX, _tilePlatforms.front()->getContentSize().height  * .95f);
+                obstacleNode->setContentSize(spike->getContentSize());
+
+                // set movement
+                auto moveBy = MoveBy::create(1.f, Vec2(.0f, -spike->getContentSize().height));
+                auto moveByRev = MoveBy::create(0.5f, Vec2(.0f, spike->getContentSize().height));
+
+                auto repeatForever = RepeatForever::create(Sequence::create(moveBy, DelayTime::create(1.25f), moveByRev, nullptr));
+                obstacleNode->runAction(repeatForever);
+            }
+            break;
+            case TAG_WEIGHT:
+                break;
+        }
 
 #ifdef _DEBUG
-    auto box = DrawNode::create();
-    auto bb = obstacleNode->getBoundingBox();
-    box->drawRect(Vec2::ZERO, bb.size, Color4F::RED);
-    box->setLineWidth(2);
-    obstacleNode->addChild(box);
+        auto box = DrawNode::create();
+        auto bb = obstacleNode->getBoundingBox();
+        box->drawRect(Vec2::ZERO, bb.size, Color4F::RED);
+        box->setLineWidth(2);
+        obstacleNode->addChild(box);
 #endif
 
-    _obstacles.pushBack(obstacleNode);
-    _obstacleLayer->addChild(obstacleNode);
+        _obstacles.pushBack(obstacleNode);
+        _obstacleLayer->addChild(obstacleNode);
 
 }
 
@@ -855,45 +910,45 @@ void GameLayer::checkCollision()
                     // return;
                 }
             }
+        }
+
+        // non-lethal obstacles
+        else{
+            auto obsRect = obs->getBoundingBox();
+            auto playerBoundingBox = _playerCharacter->getBoundingBox();
+
+
+            // 10% off from left
+            playerBoundingBox.origin += Vec2(playerBoundingBox.size.width * .1f, 0.f);
+            // 80% of the original bounding box
+            playerBoundingBox.size = Vec2(playerBoundingBox.size.width * .8f, playerBoundingBox.size.height);
+
+            // if collides
+            if(obsRect.intersectsRect(playerBoundingBox)){
+
+                // it pushes player when collided on side (left only)
+
+                // side way, slide
+                if(obsRect.getMinX() > _lastPosition.x && (_reverseFall > 0 ? _lastPosition.y + _playerCharacter->getContentSize().height > obsRect.getMinY() : _lastPosition.y < obsRect.getMaxY())){
+
+                    _playerCharacter->setPositionX(obsRect.getMinX() - _playerCharacter->getContentSize().width * .9f);
+                }
+                else{
+                    // player can stand on non lethal obstacles.
+
+                    // colliding from top
+                    _fallSpeed = 0.f;
+                    _playerCharacter->setMidAir(false);
+                    _playerCharacter->setPositionY((_reverseFall > 0) ? obsRect.getMinY() - _playerCharacter->getContentSize().height : obsRect.getMaxY());
+
+                }
+
+            }
+        }
     }
-
-    // non-lethal obstacles
-              else{
-                  auto obsRect = obs->getBoundingBox();
-                  auto playerBoundingBox = _playerCharacter->getBoundingBox();
-
-
-                  // 10% off from left
-                  playerBoundingBox.origin += Vec2(playerBoundingBox.size.width * .1f, 0.f);
-                  // 80% of the original bounding box
-                  playerBoundingBox.size = Vec2(playerBoundingBox.size.width * .8f, playerBoundingBox.size.height);
-
-                  // if collides
-                  if(obsRect.intersectsRect(playerBoundingBox)){
-
-                      // it pushes player when collided on side (left only)
-
-                      // side way, slide
-                      if(obsRect.getMinX() > _lastPosition.x && (_reverseFall > 0 ? _lastPosition.y + _playerCharacter->getContentSize().height > obsRect.getMinY() : _lastPosition.y < obsRect.getMaxY())){
-
-                          _playerCharacter->setPositionX(obsRect.getMinX() - _playerCharacter->getContentSize().width * .9f);
-                      }
-                      else{
-                          // player can stand on non lethal obstacles.
-
-                          // colliding from top
-                          _fallSpeed = 0.f;
-                          _playerCharacter->setMidAir(false);
-                          _playerCharacter->setPositionY((_reverseFall > 0) ? obsRect.getMinY() - _playerCharacter->getContentSize().height : obsRect.getMaxY());
-
-                      }
-
-                  }
-              }
-}
 }
 
 int& GameLayer::getPlayerHealth()
 {
-	return _playerCharacter->getHealth(); 
+    return _playerCharacter->getHealth();
 }
