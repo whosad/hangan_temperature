@@ -21,7 +21,13 @@ public:
 	void setGameState(GAME_STATE* gameState){ _gameState = gameState; };
 	void setScore(double* score){ _score = score; };
 
+       // pointer to game layer
 	void setGameLayer(GameLayer* gl){ _gameLayer = gl; };
+
+       // updates health
+       void updateHealth();
+
+       void setPlayerHealth(int& ph){ _playerHealth = &ph; };
 
 private:
 
@@ -33,7 +39,6 @@ private:
 
 	// setup score label
 	void setupScoreLabel();
-	void updateHealth();
 	void setupHealthBar();
 	///////// Variables ////////////////////////////
 public:
@@ -47,7 +52,7 @@ private:
 	// pointer to game scene variables
     GAME_STATE* _gameState;
 	double* _score;
-	float* _playerHealth;
+	int* _playerHealth;
 
 	// score label
 	cocos2d::Label* _scoreLabel;
@@ -55,6 +60,9 @@ private:
 
 	// game layer
 	GameLayer* _gameLayer;
+
+       // health icons vector
+       cocos2d::Vector<cocos2d::Sprite*> _healthIcons;
 
 
 };

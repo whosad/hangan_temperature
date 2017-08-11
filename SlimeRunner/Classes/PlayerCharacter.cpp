@@ -20,7 +20,7 @@ void PlayerCharacter::initOptions()
     this->setFlippedX(true);
     this->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
 
-    _playerHealth = 100.f;
+    _playerHealth = 10;
     _isInvincible = false;
     _isMidAir = true;
 
@@ -44,7 +44,7 @@ void PlayerCharacter::initOptions()
 void PlayerCharacter::runBlink()
 {
     auto blink = Blink::create(2.f, 14);
-    auto moveBy = MoveBy::create(2.f, Vec2(-50.f, 0));
+    auto moveBy = MoveBy::create(2.f, Vec2(-100.f, 0));
 
     // set is hit false
 

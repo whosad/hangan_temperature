@@ -34,14 +34,18 @@ bool GameLayer::init()
     /************************************************************************/
 #ifdef _DEBUG	
     auto keyListener = EventListenerKeyboard::create();
-    auto pointerToMod = &_scrollSpeed;
+    auto pointerToMod = &_speedModifier;
     keyListener->onKeyPressed = [pointerToMod](EventKeyboard::KeyCode keyCode, Event* event){
         if(keyCode == EventKeyboard::KeyCode::KEY_SPACE)
-            *pointerToMod = 10.f;
+            *pointerToMod = 3.f;
+        else if(keyCode == EventKeyboard::KeyCode::KEY_M)
+            *pointerToMod = 0.f;
     };
     keyListener->onKeyReleased = [pointerToMod](EventKeyboard::KeyCode keyCode, Event* event){
         if(keyCode == EventKeyboard::KeyCode::KEY_SPACE)
-            *pointerToMod = 5.f;
+            *pointerToMod = 1.f;
+        else if(keyCode == EventKeyboard::KeyCode::KEY_M)
+            *pointerToMod = 1.f;
     };
 
     this->_eventDispatcher->addEventListenerWithSceneGraphPriority(keyListener, this);
@@ -223,6 +227,8 @@ void GameLayer::loadCharacter()
     _defaultPlayerPosX = _visibleSize.width * .45f;
 
     _playerCharacter->setPosition(_defaultPlayerPosX / 2, _visibleSize.height * .5f);
+
+    _gameUILayer->setPlayerHealth(_playerCharacter->getHealth());
 
 }
 
@@ -823,6 +829,7 @@ void GameLayer::checkCollision()
                 // only triggers when player is hurtable
                 if(!_playerCharacter->isHit()){
                     _playerCharacter->setHit(true);
+                    _gameUILayer->updateHealth();
 
                     if(_playerCharacter->isDead()){
                         // change sprite to dead
@@ -912,5 +919,5 @@ void GameLayer::checkCollision()
 
 int& GameLayer::getPlayerHealth()
 {
-	return _playerCharacter->getHealthP(); 
+	return _playerCharacter->getHealth(); 
 }

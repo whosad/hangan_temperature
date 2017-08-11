@@ -23,7 +23,7 @@ public:
            _isInvincible = hit;
            // lets handle hp here
            if(hit){
-               _playerHealth -= 10;
+               _playerHealth -= 1;
            }
        };
 
@@ -33,8 +33,7 @@ public:
        // run blinking animation when hit
        void runBlink();
 
-       const int& getHealth(){ return _playerHealth; };
-	   int& getHealthP(){ return _playerHealth; };
+       int& getHealth(){ return _playerHealth; };
 
 private:
 
