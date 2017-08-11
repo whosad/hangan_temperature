@@ -226,7 +226,7 @@ void GameLayer::loadCharacter()
     this->addChild(_playerCharacter, 1);
     _defaultPlayerPosX = _visibleSize.width * .45f;
 
-    _playerCharacter->setPosition(_defaultPlayerPosX / 2, _visibleSize.height * .5f);
+    _playerCharacter->setPosition(_defaultPlayerPosX * .66f, _visibleSize.height * .5f);
 
     _gameUILayer->setPlayerHealth(_playerCharacter->getHealth());
 
@@ -237,7 +237,8 @@ void GameLayer::playerPhysics()
 
     // if player is behind, pull it towards default x position
     if(_playerCharacter->getPositionX() < _defaultPlayerPosX){
-        _playerCharacter->setPositionX(MIN(_playerCharacter->getPositionX() + 1.f, _defaultPlayerPosX));
+        // 1/3 of scrolling speed
+        _playerCharacter->setPositionX(MIN(_playerCharacter->getPositionX() + _scrollSpeed * _speedModifier * .33f, _defaultPlayerPosX));
     }
 
     // maximum falling speed is defined in the header
@@ -319,6 +320,7 @@ bool GameLayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
         case GAME_STATE::PAUSED:
             // start game
             startGame();
+            _gameUILayer->setInstruction(false);
 
 
             break;
@@ -412,6 +414,8 @@ void GameLayer::restartComponents()
     this->addChild(_backgroundLayer);
     this->addChild(_obstacleLayer);
     this->addChild(_platformLayer);
+
+    _gameUILayer->setInstruction(true);
 
     loadBackground();
 
@@ -844,41 +848,13 @@ void GameLayer::checkCollision()
                     }
                     else{
                         _playerCharacter->runBlink();
+                        // loses score
+                        *_score = MAX(0.0, *_score - 50.0);
                     }
 
-                    return;
+                    // return;
                 }
             }
-        // 		if (obsRect.intersectsRect(playerRect)){
-        // 
-        // 			auto left = MAX(obsRect.getMinX(), playerRect.getMinX());
-        // 			auto right = MIN(obsRect.getMaxX(), playerRect.getMaxX());
-        // 			auto bottom = MAX(obsRect.getMinY(), playerRect.getMinY());
-        // 			auto top = MIN(obsRect.getMaxY(), playerRect.getMaxY());
-        // 
-        // 			auto width = right - left;
-        // 			auto height = top - bottom;
-        // 
-        // 			auto area = width * height;
-        // 
-        // 			// dies only if intersection size if larger than some number
-        // 			CCLOG("intersected area: %f", area);
-        // 			// 2% of player size
-        // 			if (area > _playerSize * .2f){
-        // 
-        // 				// change sprite to dead
-        // 				_playerCharacter->stopAllActions();
-        // 				_playerCharacter->setSpriteFrame(Sprite::create("PNG/Enemies/slimePurple_dead.png")->getSpriteFrame());
-        // 				_playerCharacter->setFlippedX(true);
-        // 				_playerCharacter->setFlippedY(true);
-        // 				*_gameState = GAME_STATE::OVER;
-        // 
-        // 				this->pause();
-        // 				gameOverSequence();
-        // 			}
-        // 
-        // 			break;
-        // 		}
     }
 
     // non-lethal obstacles

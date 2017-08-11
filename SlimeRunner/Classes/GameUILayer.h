@@ -5,6 +5,7 @@
 #include "GameState.h"
 
 class GameLayer;
+class GameScene;
 
 // we are using node as layer
 class GameUILayer : public cocos2d::Node
@@ -29,6 +30,10 @@ public:
 
        void setPlayerHealth(int& ph){ _playerHealth = &ph; };
 
+       void setInstruction(bool on){ _instructionSprite->setVisible(on); };
+
+       void resetHealth();
+
 private:
 
 	// update function
@@ -40,6 +45,13 @@ private:
 	// setup score label
 	void setupScoreLabel();
 	void setupHealthBar();
+
+
+
+
+
+
+
 	///////// Variables ////////////////////////////
 public:
 
@@ -63,6 +75,9 @@ private:
 
        // health icons vector
        cocos2d::Vector<cocos2d::Sprite*> _healthIcons;
+
+       // setup instruction
+       cocos2d::Sprite* _instructionSprite;
 
 
 };
