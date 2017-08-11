@@ -22,6 +22,7 @@ bool GameUILayer::init()
 
     setupScoreLabel();
     setupHealthBar();
+    setupGauge();
 
     _instructionSprite = Sprite::create("PNG/instruction.png");
     // not recommended butfor now..
@@ -36,7 +37,7 @@ void GameUILayer::update(float dt)
 {
 
     updateScore();
-
+    updateGauge();
 }
 
 void GameUILayer::updateScore()
@@ -56,7 +57,7 @@ void GameUILayer::setupScoreLabel()
     _scoreLabel = Label::createWithCharMap("PNG/HUD/hudNumbers.png", 64, 128, 48);
     _scoreLabel->setAlignment(TextHAlignment::LEFT, TextVAlignment::CENTER);
     _scoreLabel->setAnchorPoint(Vec2::ANCHOR_TOP_LEFT);
-    _scoreLabel->setPosition(_visibleSize.width * 0.05f, _visibleSize.height * .98f);
+    _scoreLabel->setPosition(_visibleSize.width * 0.03f, _visibleSize.height * .98f);
     this->addChild(_scoreLabel, 0);
 
 
@@ -106,4 +107,36 @@ void GameUILayer::resetHealth()
     for(auto spr : _healthIcons){
         spr->setSpriteFrame(Sprite::create("PNG/HUD/hudHeart_full.png")->getSpriteFrame());
     }
+}
+
+void GameUILayer::updateGauge()
+{
+    _gaugeBar->getChildByName<ProgressTimer*>("bar")->setPercentage(_gameLayer->getGauge());
+}
+
+void GameUILayer::setupGauge()
+{
+    // Sprite node for background
+    _gaugeBar = Sprite::create("PNG/UI_pack/yellow_button13.png");
+    _gaugeBar->setPosition(_visibleSize.width * .1f, _visibleSize.height * .03f);
+    _gaugeBar->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+
+    // progess bar?
+    auto gaugeBar = ProgressTimer::create(Sprite::create("PNG/UI_pack/yellow_button_fill.png"));
+    gaugeBar->setType(ProgressTimer::Type::BAR);
+    gaugeBar->setBarChangeRate(Vec2(1.f, 0.f));
+    gaugeBar->setMidpoint(Vec2(0.f, .5f));
+    gaugeBar->setPercentage(0.f);
+    gaugeBar->setName("bar");
+    gaugeBar->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+
+    _gaugeBar->addChild(gaugeBar);
+
+    // icon
+    auto icon = Sprite::create("PNG/HUD/hudPlayer_beige.png");
+    icon->setAnchorPoint(Vec2::ANCHOR_MIDDLE_RIGHT);
+    icon->setPosition(_gaugeBar->getPositionX(), _gaugeBar->getPositionY() + _gaugeBar->getContentSize().height * .5f + 2.f);
+    this->addChild(icon);
+
+    this->addChild(_gaugeBar);
 }

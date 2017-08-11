@@ -23,6 +23,7 @@ void PlayerCharacter::initOptions()
     _playerHealth = 10;
     _isInvincible = false;
     _isMidAir = true;
+    _skillGauge = 0.f;
 
     // set move animation
     // move animation has two frames
@@ -38,6 +39,7 @@ void PlayerCharacter::initOptions()
 
     _moveAnimate = RepeatForever::create(Animate::create(moveAnimation));
 	_moveAnimate->retain();
+
 
 }
 

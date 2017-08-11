@@ -34,6 +34,8 @@ public:
 	void setGameUILayer(GameUILayer* gl){ _gameUILayer = gl; };
 	int& getPlayerHealth();
 
+       // return gauge for ui
+       float& getGauge();
 
 private:
 
@@ -77,10 +79,15 @@ private:
 
 
 
-
 	// touch began event
 	bool OnTouchBegan(cocos2d::Touch* t, cocos2d::Event* e);
 	void checkCollision();
+
+
+
+
+
+
 
 	///////////////// Variables
 public:

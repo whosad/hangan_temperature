@@ -44,8 +44,14 @@ private:
 
 	// setup score label
 	void setupScoreLabel();
+       // setup health bar
 	void setupHealthBar();
+       // setup skill gauge
+       void setupGauge();
 
+
+       // update gauge
+       void updateGauge();
 
 
 
@@ -79,7 +85,8 @@ private:
        // setup instruction
        cocos2d::Sprite* _instructionSprite;
 
-
+       // gauge bar
+       cocos2d::Sprite* _gaugeBar;
 };
 
 #endif //__GAME_UI_LAYER_H__

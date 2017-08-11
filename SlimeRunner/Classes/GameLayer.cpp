@@ -74,6 +74,10 @@ void GameLayer::update(float dt){
             // score
             updateScore(dt);
 
+            // update gauge
+            _playerCharacter->increaseGauge();
+
+
             // update passed number of pixels
             _pixelsPassed += _scrollSpeed * _speedModifier;
 
@@ -295,6 +299,7 @@ void GameLayer::playerPhysics()
 
     // store last position of the player
     _lastPosition = _playerCharacter->getPosition();
+
 }
 
 bool GameLayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
@@ -379,18 +384,18 @@ void GameLayer::scheduleObstacleSpawns(float dt)
 
     obstacleNode->addChild(bee);
 
-    obstacleNode->setPosition(_visibleSize.width + bee->getContentSize().width * 2.f, random(_visibleSize.height * .333f, _visibleSize.height * .667f));
+    obstacleNode->setPosition(_visibleSize.width + bee->getContentSize().width * 2.f, random(_visibleSize.height * .33f, _visibleSize.height * .66f));
     obstacleNode->setContentSize(Size(bee->getContentSize().width, bee->getContentSize().height));
 
     // set movement
     // make curves ocassionally
-    int numOfCurves = random(2, 6);
+    int numOfCurves = random(4, 7);
     Vector<FiniteTimeAction*> jumps;
     // 5 secs
     // 5  / numofjumps
     int sign = random(0, 2) < 1 ? 1 : -1;
     for(int i = 0; i < numOfCurves; i++){
-        auto moveBy = MoveBy::create(5.f / numOfCurves, Vec2(-800.f / numOfCurves, sign *random(150.f, 200.f)));
+        auto moveBy = MoveBy::create(5.f / numOfCurves, Vec2(-500.f / numOfCurves, sign *random(250.f, 300.f)));
         sign *= -1;
         jumps.pushBack(moveBy);
     }
@@ -406,7 +411,7 @@ void GameLayer::scheduleObstacleSpawns(float dt)
     box->setLineWidth(2);
     obstacleNode->addChild(box);
 #endif
-    obstacleNode->setScale(.5f);
+    obstacleNode->setScale(.35f);
 
     _obstacles.pushBack(obstacleNode);
     _obstacleLayer->addChild(obstacleNode, 3);
@@ -952,3 +957,8 @@ int& GameLayer::getPlayerHealth()
 {
     return _playerCharacter->getHealth();
 }
+
+float& GameLayer::getGauge()
+{
+    return  _playerCharacter->getGauge();
+};

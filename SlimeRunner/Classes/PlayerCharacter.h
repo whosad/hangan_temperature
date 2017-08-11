@@ -24,16 +24,21 @@ public:
            // lets handle hp here
            if(hit){
                _playerHealth -= 1;
+               _skillGauge = MAX(_skillGauge - 20.f, 0.f);
            }
        };
 
        // check if dead
-       bool isDead(){ if(_playerHealth <= 0) return true; return false; };
+       bool isDead(){return _playerHealth <= 0 ? true: false; };
 
        // run blinking animation when hit
        void runBlink();
 
        int& getHealth(){ return _playerHealth; };
+       float& getGauge(){ return _skillGauge; };
+
+       // increase gauge every second
+       void increaseGauge(float increament = .2f){ _skillGauge = MIN(_skillGauge + increament, 100.f); };
 
 private:
 
@@ -46,11 +51,16 @@ public:
 
 
 private:
+
     bool _isInvincible;
     bool _isMidAir ;
 	cocos2d::RepeatForever* _moveAnimate;
 
+       // health
        int _playerHealth;
+
+       // gauge for skill
+       float _skillGauge;
 
 };
 
