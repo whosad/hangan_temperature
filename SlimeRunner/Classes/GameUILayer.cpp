@@ -26,7 +26,7 @@ bool GameUILayer::init()
 
     _instructionSprite = Sprite::create("PNG/instruction.png");
     // not recommended butfor now..
-    _instructionSprite->setPosition(_visibleSize.width * .5f - 318, _visibleSize.height * .5f + 88);
+    _instructionSprite->setPosition(_visibleSize.width * .5f - 315, _visibleSize.height * .5f + 88.f - 148.f);
     this->addChild(_instructionSprite);
 
 

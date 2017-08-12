@@ -81,7 +81,7 @@ void GameLayer::update(float dt){
             // update passed number of pixels
             _pixelsPassed += _scrollSpeed * _speedModifier;
 
-            _speedModifier += dt * 0.01f;
+            _speedModifier += dt * 0.005f;
 
             break;
         case GAME_STATE::PAUSED:
@@ -227,7 +227,7 @@ void GameLayer::loadCharacter()
     this->addChild(_playerCharacter, 1);
     _defaultPlayerPosX = _visibleSize.width * .45f;
 
-    _playerCharacter->setPosition(_defaultPlayerPosX * .66f, _visibleSize.height * .5f);
+    _playerCharacter->setPosition(_defaultPlayerPosX * .66f, _visibleSize.height * .5f - 146.f);
 
     _gameUILayer->setPlayerHealth(_playerCharacter->getHealth());
 
@@ -389,15 +389,23 @@ void GameLayer::scheduleObstacleSpawns(float dt)
 
     // set movement
     // make curves ocassionally
-    int numOfCurves = random(4, 7);
+    int numOfCurves = 5;
     Vector<FiniteTimeAction*> jumps;
     // 5 secs
     // 5  / numofjumps
     int sign = random(0, 2) < 1 ? 1 : -1;
+	float vY = random(150.f, 300.f);
     for(int i = 0; i < numOfCurves; i++){
-        auto moveBy = MoveBy::create(5.f / numOfCurves, Vec2(-500.f / numOfCurves, sign *random(250.f, 300.f)));
+
+		ccBezierConfig bzConfig;
+		auto yy = sign * vY;
+		bzConfig.controlPoint_1 = Point(-100.f,yy);
+		bzConfig.controlPoint_2 = Point(-200.f, yy);
+		bzConfig.endPosition = Point(-300.f, 0);
+
+        auto bezierBy = BezierBy::create(1.f, bzConfig);
         sign *= -1;
-        jumps.pushBack(moveBy);
+        jumps.pushBack(bezierBy);
     }
 
     // spawn both actions
@@ -439,6 +447,8 @@ void GameLayer::gameOverSequence()
     auto sequence = Sequence::create(move_ease_out, move_ease_in, deletePlayer, nullptr);
 
     _playerCharacter->runAction(sequence);
+
+	this->unschedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleObstacleSpawns));
 
     // enable touch listener
     this->_eventDispatcher->resumeEventListenersForTarget(this);
