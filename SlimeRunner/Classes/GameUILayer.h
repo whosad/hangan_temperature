@@ -3,36 +3,39 @@
 
 #include "cocos2d.h"
 #include "GameState.h"
+#include "GameLayer.h"
+#include "PlayerCharacter.h"
 
-class GameLayer;
 class GameScene;
 
 // we are using node as layer
 class GameUILayer : public cocos2d::Node
 {
-    // Methods
+	friend GameLayer;
+
+	// Methods
 public:
 
-    // default init
-    virtual bool init();
-    // implement the "static create()" method manually
-    CREATE_FUNC(GameUILayer);
+	// default init
+	virtual bool init();
+	// implement the "static create()" method manually
+	CREATE_FUNC(GameUILayer);
 
 	// holds the pointer of game state variable inside game scene
 	void setGameState(GAME_STATE* gameState){ _gameState = gameState; };
 	void setScore(double* score){ _score = score; };
 
-       // pointer to game layer
+	// pointer to game layer
 	void setGameLayer(GameLayer* gl){ _gameLayer = gl; };
 
-       // updates health
-       void updateHealth();
+	// updates health
+	void updateHealth();
 
-       void setPlayerHealth(int& ph){ _playerHealth = &ph; };
+	void setPlayerHealth(int& ph){ _playerHealth = &ph; };
 
-       void setInstruction(bool on){ _instructionSprite->setVisible(on); };
+	void setInstruction(bool on){ _instructionSprite->setVisible(on); };
 
-       void resetHealth();
+	void resetHealth();
 
 private:
 
@@ -44,15 +47,20 @@ private:
 
 	// setup score label
 	void setupScoreLabel();
-       // setup health bar
+	// setup health bar
 	void setupHealthBar();
-       // setup skill gauge
-       void setupGauge();
+	// setup skill gauge
+	void setupGauge();
+
+	// setup skill use button
+	void setupSkillButton();
+
+	// update gauge
+	void updateGauge();
 
 
-       // update gauge
-       void updateGauge();
-
+	// touch began event
+	bool OnTouchBegan(cocos2d::Touch* t, cocos2d::Event* e);
 
 
 
@@ -68,7 +76,7 @@ private:
 	cocos2d::Size _visibleSize;
 
 	// pointer to game scene variables
-    GAME_STATE* _gameState;
+	GAME_STATE* _gameState;
 	double* _score;
 	int* _playerHealth;
 
@@ -79,14 +87,14 @@ private:
 	// game layer
 	GameLayer* _gameLayer;
 
-       // health icons vector
-       cocos2d::Vector<cocos2d::Sprite*> _healthIcons;
+	// health icons vector
+	cocos2d::Vector<cocos2d::Sprite*> _healthIcons;
 
-       // setup instruction
-       cocos2d::Sprite* _instructionSprite;
+	// setup instruction
+	cocos2d::Sprite* _instructionSprite;
 
-       // gauge bar
-       cocos2d::Sprite* _gaugeBar;
+	// gauge bar
+	cocos2d::Sprite* _gaugeBar;
 };
 
 #endif //__GAME_UI_LAYER_H__

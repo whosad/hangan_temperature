@@ -11,6 +11,7 @@ class GameUILayer;
 // we are using node as layer
 class GameLayer : public cocos2d::Node
 {
+	friend GameUILayer;
 	// Methods
 public:
 
@@ -32,10 +33,6 @@ public:
 	};
 
 	void setGameUILayer(GameUILayer* gl){ _gameUILayer = gl; };
-	int& getPlayerHealth();
-
-       // return gauge for ui
-       float& getGauge();
 
 private:
 
@@ -51,6 +48,7 @@ private:
 
 	// setup schedule for obstacle spawn
 	void scheduleObstacleSpawns(float dt);
+	void scheduleRandomGust(float dt);
 
 
 	// load character
@@ -79,8 +77,6 @@ private:
 
 
 
-	// touch began event
-	bool OnTouchBegan(cocos2d::Touch* t, cocos2d::Event* e);
 	void checkCollision();
 
 
@@ -132,6 +128,7 @@ private:
 
 	// obstacle spawn rate
 	float _obstacleSpawnRate;
+	float _gustSpawnRate;
 
 	// string to be used to define sprite paths for stages
 	std::string _bgSpriteName;

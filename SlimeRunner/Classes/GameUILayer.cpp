@@ -1,8 +1,8 @@
 #include "GameUILayer.h"
 #include "SimpleAudioEngine.h"
 
-#include "GameLayer.h"
 #include "GameScene.h"
+#include "GameLayer.h"
 
 USING_NS_CC;
 
@@ -20,9 +20,17 @@ bool GameUILayer::init()
 
     _visibleSize = Director::getInstance()->getVisibleSize();
 
+
+	// add touch listeners
+	auto touchListener = EventListenerTouchOneByOne::create();
+	touchListener->onTouchBegan = CC_CALLBACK_2(GameUILayer::OnTouchBegan, this);
+	this->_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, this);
+
+
     setupScoreLabel();
     setupHealthBar();
     setupGauge();
+	setupSkillButton();
 
     _instructionSprite = Sprite::create("PNG/instruction.png");
     // not recommended butfor now..
@@ -38,6 +46,8 @@ void GameUILayer::update(float dt)
 
     updateScore();
     updateGauge();
+
+
 }
 
 void GameUILayer::updateScore()
@@ -65,7 +75,7 @@ void GameUILayer::setupScoreLabel()
 
 void GameUILayer::updateHealth()
 {
-    CCLOG("player health on ui: %d", _gameLayer->getPlayerHealth());
+    CCLOG("player health on ui: %d", _gameLayer->_playerCharacter->getHealth());
 
     if(*_playerHealth % 2 == 0){
         _healthIcons.at(*_playerHealth / 2)->setSpriteFrame(Sprite::create("PNG/HUD/hudHeart_empty.png")->getSpriteFrame());
@@ -111,7 +121,7 @@ void GameUILayer::resetHealth()
 
 void GameUILayer::updateGauge()
 {
-    _gaugeBar->getChildByName<ProgressTimer*>("bar")->setPercentage(_gameLayer->getGauge());
+    _gaugeBar->getChildByName<ProgressTimer*>("bar")->setPercentage(_gameLayer->_playerCharacter->getGauge());
 }
 
 void GameUILayer::setupGauge()
@@ -133,10 +143,72 @@ void GameUILayer::setupGauge()
     _gaugeBar->addChild(gaugeBar);
 
     // icon
-    auto icon = Sprite::create("PNG/HUD/hudPlayer_beige.png");
+    auto icon = Sprite::create("PNG/skillIcon.png");
     icon->setAnchorPoint(Vec2::ANCHOR_MIDDLE_RIGHT);
     icon->setPosition(_gaugeBar->getPositionX(), _gaugeBar->getPositionY() + _gaugeBar->getContentSize().height * .5f + 2.f);
     this->addChild(icon);
 
     this->addChild(_gaugeBar);
 }
+
+void GameUILayer::setupSkillButton()
+{
+	
+}
+
+
+bool GameUILayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
+{
+	switch (*_gameState){
+		case GAME_STATE::PLAYING:
+			if (!(_gameLayer->_playerCharacter->isMidAir())){
+				// jump
+				// reverse fall direction
+				_gameLayer->_reverseFall *= -1;
+				// jump player 
+				_gameLayer->_fallSpeed = 4.f;
+				_gameLayer->_playerCharacter->setPositionY(_gameLayer->_playerCharacter->getPositionY() + _gameLayer->_reverseFall);
+
+				// flip sprite
+				_gameLayer->_playerCharacter->setFlippedY(!_gameLayer->_playerCharacter->isFlippedY());
+			}
+			break;
+
+		case GAME_STATE::PAUSED:
+			// start game
+			_gameLayer->startGame();
+			_gameLayer->_gameUILayer->setInstruction(false);
+
+			// set obstacle spawn schedule
+			_gameLayer->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleObstacleSpawns), random(5.f, 7.f));
+			_gameLayer->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleRandomGust), _gameLayer->_gustSpawnRate);
+
+			break;
+
+		case GAME_STATE::OVER:
+
+			/************************************************************************/
+			/* 사실 게임 오버때는 여기 말고 UI에서 터치 처리해야됨                     */
+			/************************************************************************/
+			CCLOG("Game over and touched");
+
+			// clean up and reset componets
+			this->removeAllChildrenWithCleanup(true);
+
+			_gameLayer->_backgrounds.clear();
+			_gameLayer->_tilePlatforms.clear();
+			_gameLayer->_obstacles.clear();
+
+			_gameLayer->restartComponents();
+			resetHealth();
+
+			*_gameState = GAME_STATE::PAUSED;
+
+			break;
+
+	}
+
+
+	return false;
+}
+
