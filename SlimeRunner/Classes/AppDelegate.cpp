@@ -1,7 +1,7 @@
 #include "AppDelegate.h"
 #include "TitleScene.h"
 
-#ifdef _DEBUG
+#ifdef COCOS2D_DEBUG
 #include "vld.h"
 #endif
 
@@ -73,7 +73,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     }
 
     // turn on display FPS
-#ifdef _DEBUG
+#ifdef COCOS2D_DEBUG
     director->setDisplayStats(true);
 #endif
 

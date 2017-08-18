@@ -20,7 +20,7 @@ bool TitleScene::init()
         return false;
     }
 
-#ifdef _DEBUG
+#ifdef COCOS2D_DEBUG
     UserDefault::getInstance()->setIntegerForKey("unlockedStage", 2);
 #endif
 
@@ -133,8 +133,6 @@ void TitleScene::setupStartButton()
 
 void TitleScene::setupStageSelctionMenu()
 {
-    // CCLOG("callback good");
-
 
     // disable and hide start button
     _startButton->pause();

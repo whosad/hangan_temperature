@@ -2,6 +2,7 @@
 #define __GAME_UI_LAYER_H__
 
 #include "cocos2d.h"
+
 #include "GameState.h"
 #include "GameLayer.h"
 #include "PlayerCharacter.h"
@@ -60,7 +61,7 @@ private:
 
 
 	// touch began event
-	bool OnTouchBegan(cocos2d::Touch* t, cocos2d::Event* e);
+       bool OnTouchBegan(cocos2d::Touch* t, cocos2d::Event* e);
 
 
 
@@ -95,6 +96,7 @@ private:
 
 	// gauge bar
 	cocos2d::Sprite* _gaugeBar;
+
 };
 
 #endif //__GAME_UI_LAYER_H__

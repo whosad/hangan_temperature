@@ -25,7 +25,7 @@ bool GameLayer::init()
 
 
 	/************************************************************************/
-#ifdef _DEBUG	
+#ifdef COCOS2D_DEBUG	
 	auto keyListener = EventListenerKeyboard::create();
 	auto pointerToMod = &_speedModifier;
 	keyListener->onKeyPressed = [pointerToMod](EventKeyboard::KeyCode keyCode, Event* event){
@@ -354,7 +354,7 @@ void GameLayer::scheduleObstacleSpawns(float dt)
 	obstacleNode->runAction(Sequence::create(jumps));
 	obstacleNode->setContentSize(bee->getContentSize());
 
-#ifdef _DEBUG
+#ifdef COCOS2D_DEBUG
 	auto box = DrawNode::create();
 	auto bb = obstacleNode->getBoundingBox();
 	box->drawRect(Vec2::ZERO, bb.size, Color4F::RED);
@@ -841,7 +841,7 @@ void GameLayer::spawnObstacle(OBSTACLE_TYPE obstacleType)
 			break;
 	}
 
-#ifdef _DEBUG
+#ifdef COCOS2D_DEBUG
 	auto box = DrawNode::create();
 	auto bb = obstacleNode->getBoundingBox();
 	box->drawRect(Vec2::ZERO, bb.size, Color4F::RED);

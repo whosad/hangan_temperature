@@ -153,12 +153,40 @@ void GameUILayer::setupGauge()
 
 void GameUILayer::setupSkillButton()
 {
-	
+	// make skill button 9 10
+    auto skillButton = Sprite::create("PNG/UI_Pack/blue_button09.png");
+    skillButton->setPosition(_visibleSize.width / 2, _visibleSize.height / 2);
+    this->addChild(skillButton, 1);
+
+    // add touch listeners
+    auto touchListener = EventListenerTouchOneByOne::create();
+    touchListener->onTouchBegan = CC_CALLBACK_2(GameUILayer::OnTouchBegan, this);
+    touchListener->setSwallowTouches(true);
+    this->_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, skillButton);
+    
 }
 
 
 bool GameUILayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 {
+    if(event->getCurrentTarget() == this){
+        CCLOG("screen touch");
+    }
+    else{
+        // find out which one is touched and proceed to selected stage
+        auto target = (Sprite*)(event->getCurrentTarget());
+
+        auto locInNode = target->convertToNodeSpace(touch->getLocation());
+        auto size = target->getContentSize();
+        auto rect = Rect(0, 0, size.width, size.height);
+        if(rect.containsPoint(locInNode)){
+            CCLOG("button touch");
+            return true;
+        } 
+        CCLOG("button event listened but not on the button so skip this listener");
+        return false;
+    }
+
 	switch (*_gameState){
 		case GAME_STATE::PLAYING:
 			if (!(_gameLayer->_playerCharacter->isMidAir())){
