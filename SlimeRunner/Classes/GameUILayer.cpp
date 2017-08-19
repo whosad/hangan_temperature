@@ -30,10 +30,9 @@ bool GameUILayer::init()
     setupScoreLabel();
     setupHealthBar();
     setupGauge();
-	setupSkillButton();
 
     _instructionSprite = Sprite::create("PNG/instruction.png");
-    // not recommended butfor now..
+    // not recommended but for now..
     _instructionSprite->setPosition(_visibleSize.width * .5f - 315, _visibleSize.height * .5f + 88.f - 148.f);
     this->addChild(_instructionSprite);
 
@@ -121,7 +120,18 @@ void GameUILayer::resetHealth()
 
 void GameUILayer::updateGauge()
 {
-    _gaugeBar->getChildByName<ProgressTimer*>("bar")->setPercentage(_gameLayer->_playerCharacter->getGauge());
+	auto val = _gameLayer->_playerCharacter->getGauge();
+    _gaugeBar->getChildByName<ProgressTimer*>("bar")->setPercentage(val);
+	
+	// skill uses 1/2 of gauge
+	if (val > 50.f){
+		if (_skillIcon->getNumberOfRunningActions() <= 0)
+			_skillIcon->runAction(_iconZoom);
+	}
+	else{
+		if (_skillIcon->getNumberOfRunningActions() > 0)
+			_skillIcon->stopAllActions();
+	}
 }
 
 void GameUILayer::setupGauge()
@@ -143,100 +153,110 @@ void GameUILayer::setupGauge()
     _gaugeBar->addChild(gaugeBar);
 
     // icon
-    auto icon = Sprite::create("PNG/skillIcon.png");
-    icon->setAnchorPoint(Vec2::ANCHOR_MIDDLE_RIGHT);
-    icon->setPosition(_gaugeBar->getPositionX(), _gaugeBar->getPositionY() + _gaugeBar->getContentSize().height * .5f + 2.f);
-    this->addChild(icon);
+    _skillIcon = Sprite::create("PNG/skillIcon.png");
+    _skillIcon->setAnchorPoint(Vec2::ANCHOR_MIDDLE_RIGHT);
+    _skillIcon->setPosition(_gaugeBar->getPositionX(), _gaugeBar->getPositionY() + _gaugeBar->getContentSize().height * .5f + 2.f);
+    this->addChild(_skillIcon);
 
     this->addChild(_gaugeBar);
-}
 
-void GameUILayer::setupSkillButton()
-{
-	// make skill button 9 10
-    auto skillButton = Sprite::create("PNG/UI_Pack/blue_button09.png");
-    skillButton->setPosition(_visibleSize.width / 2, _visibleSize.height / 2);
-    this->addChild(skillButton, 1);
+	// add touch listeners
+	auto touchListener = EventListenerTouchOneByOne::create();
+	touchListener->onTouchBegan = CC_CALLBACK_2(GameUILayer::OnTouchBegan, this);
+	touchListener->setSwallowTouches(true);
+	this->_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, _skillIcon);
 
-    // add touch listeners
-    auto touchListener = EventListenerTouchOneByOne::create();
-    touchListener->onTouchBegan = CC_CALLBACK_2(GameUILayer::OnTouchBegan, this);
-    touchListener->setSwallowTouches(true);
-    this->_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, skillButton);
-    
+	auto scaleTo = ScaleTo::create(.5f, 1.2f);
+	auto scaleToRev = ScaleTo::create(.5f, 1.f);
+	auto seq = Sequence::create(scaleTo, scaleToRev, nullptr);
+	_iconZoom = RepeatForever::create(seq);
+	_iconZoom->retain();
+
+	// middle indicator 
+	auto midIndicator = Sprite::create("PNG/UI_Pack/blue_sliderUp.png");
+	midIndicator->setFlippedY(true);
+	midIndicator->setScale(.4f);
+	midIndicator->setAnchorPoint(Vec2::ANCHOR_MIDDLE_BOTTOM);
+	_gaugeBar->addChild(midIndicator);
+	midIndicator->setPosition(_gaugeBar->getContentSize().width * .5f, _gaugeBar->getContentSize().height - 10.f);
 }
 
 
 bool GameUILayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 {
-    if(event->getCurrentTarget() == this){
-        CCLOG("screen touch");
-    }
-    else{
-        // find out which one is touched and proceed to selected stage
-        auto target = (Sprite*)(event->getCurrentTarget());
+	// touch on button
+    if(event->getCurrentTarget() == _skillIcon){
+		// find out which one is touched and proceed to selected stage
+		auto target = (Sprite*)(event->getCurrentTarget());
 
-        auto locInNode = target->convertToNodeSpace(touch->getLocation());
-        auto size = target->getContentSize();
-        auto rect = Rect(0, 0, size.width, size.height);
-        if(rect.containsPoint(locInNode)){
-            CCLOG("button touch");
-            return true;
-        } 
-        CCLOG("button event listened but not on the button so skip this listener");
-        return false;
-    }
-
-	switch (*_gameState){
-		case GAME_STATE::PLAYING:
-			if (!(_gameLayer->_playerCharacter->isMidAir())){
-				// jump
-				// reverse fall direction
-				_gameLayer->_reverseFall *= -1;
-				// jump player 
-				_gameLayer->_fallSpeed = 4.f;
-				_gameLayer->_playerCharacter->setPositionY(_gameLayer->_playerCharacter->getPositionY() + _gameLayer->_reverseFall);
-
-				// flip sprite
-				_gameLayer->_playerCharacter->setFlippedY(!_gameLayer->_playerCharacter->isFlippedY());
+		auto locInNode = target->convertToNodeSpace(touch->getLocation());
+		auto size = target->getContentSize();
+		auto rect = Rect(0, 0, size.width, size.height);
+		if (rect.containsPoint(locInNode)){
+			CCLOG("button touch");
+			if (_gameLayer->_playerCharacter->getGauge() >= 50.f){
+				_gameLayer->_playerCharacter->increaseGauge(-50.f);
 			}
-			break;
 
-		case GAME_STATE::PAUSED:
-			// start game
-			_gameLayer->startGame();
-			_gameLayer->_gameUILayer->setInstruction(false);
-
-			// set obstacle spawn schedule
-			_gameLayer->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleObstacleSpawns), random(5.f, 7.f));
-			_gameLayer->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleRandomGust), _gameLayer->_gustSpawnRate);
-
-			break;
-
-		case GAME_STATE::OVER:
-
-			/************************************************************************/
-			/* 사실 게임 오버때는 여기 말고 UI에서 터치 처리해야됨                     */
-			/************************************************************************/
-			CCLOG("Game over and touched");
-
-			// clean up and reset componets
-			this->removeAllChildrenWithCleanup(true);
-
-			_gameLayer->_backgrounds.clear();
-			_gameLayer->_tilePlatforms.clear();
-			_gameLayer->_obstacles.clear();
-
-			_gameLayer->restartComponents();
-			resetHealth();
-
-			*_gameState = GAME_STATE::PAUSED;
-
-			break;
-
+			return true;
+		}
+		CCLOG("button event listened but not on the button so skip this listener");
+		return false;
 	}
+	// touch on screen
+	else{
+
+		switch (*_gameState){
+			case GAME_STATE::PLAYING:
+				if (!(_gameLayer->_playerCharacter->isMidAir())){
+					// jump
+					// reverse fall direction
+					_gameLayer->_reverseFall *= -1;
+					// jump player 
+					_gameLayer->_fallSpeed = 4.f;
+					_gameLayer->_playerCharacter->setPositionY(_gameLayer->_playerCharacter->getPositionY() + _gameLayer->_reverseFall);
+
+					// flip sprite
+					_gameLayer->_playerCharacter->setFlippedY(!_gameLayer->_playerCharacter->isFlippedY());
+				}
+				break;
+
+			case GAME_STATE::PAUSED:
+				// start game
+				_gameLayer->startGame();
+				_gameLayer->_gameUILayer->setInstruction(false);
+
+				// set obstacle spawn schedule
+				_gameLayer->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleObstacleSpawns), random(5.f, 7.f));
+				_gameLayer->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleRandomGust), _gameLayer->_gustSpawnRate);
+
+				break;
+
+			case GAME_STATE::OVER:
+
+				/************************************************************************/
+				/* 사실 게임 오버때는 여기 말고 UI에서 터치 처리해야됨                     */
+				/************************************************************************/
+				CCLOG("Game over and touched");
+
+				// clean up and reset componets
+				this->removeAllChildrenWithCleanup(true);
+
+				_gameLayer->_backgrounds.clear();
+				_gameLayer->_tilePlatforms.clear();
+				_gameLayer->_obstacles.clear();
+
+				_gameLayer->restartComponents();
+				resetHealth();
+
+				*_gameState = GAME_STATE::PAUSED;
+
+				break;
+
+		}
 
 
-	return false;
+		return false;
+	}
 }
 

@@ -38,7 +38,7 @@ public:
        float& getGauge(){ return _skillGauge; };
 
        // increase gauge every second
-       void increaseGauge(float increament = .2f){ _skillGauge = MIN(_skillGauge + increament, 100.f); };
+       void increaseGauge(float increament = .05f){ _skillGauge = MIN(_skillGauge + increament, 100.f); };
 
 private:
 

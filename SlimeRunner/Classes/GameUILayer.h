@@ -53,8 +53,6 @@ private:
 	// setup skill gauge
 	void setupGauge();
 
-	// setup skill use button
-	void setupSkillButton();
 
 	// update gauge
 	void updateGauge();
@@ -96,6 +94,11 @@ private:
 
 	// gauge bar
 	cocos2d::Sprite* _gaugeBar;
+	
+	// skill icon
+	cocos2d::Sprite* _skillIcon;
+	// skill zoom action
+	cocos2d::RepeatForever* _iconZoom;
 
 };
 

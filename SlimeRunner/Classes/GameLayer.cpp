@@ -377,15 +377,15 @@ void GameLayer::scheduleRandomGust(float dt)
 {
 	// clouds spawn and gust pushes
 
-	int numOfClouds = random(3, 6);
+	int numOfClouds = random(4, 7);
 	for (int i = 0; i < numOfClouds; i++){
 		auto cloud = Sprite::create("PNG/cloud.png");
 
 		cloud->setPosition(_visibleSize.width + random(50.f, 500.f), random(0.f, _visibleSize.height * .9f));
 		ccBezierConfig bzConfig;
-		bzConfig.controlPoint_1 = Vec2(-300.f - random(100.f, 400.f), -random(50.f, 100.f));
-		bzConfig.controlPoint_2 = Vec2(-600.f - random(100.f, 400.f), - random(0.f, 50.f));
-		bzConfig.endPosition = Vec2(-900.f - random(100.f, 400.f), _visibleSize.height);
+		bzConfig.controlPoint_1 = Vec2(-400.f - random(100.f, 400.f), -random(50.f, 100.f));
+		bzConfig.controlPoint_2 = Vec2(-800.f - random(100.f, 400.f), - random(0.f, 50.f));
+		bzConfig.endPosition = Vec2(-1200.f - random(100.f, 400.f), _visibleSize.height);
 		auto bzBy = BezierBy::create(2.f, bzConfig);
 		cloud->runAction(Sequence::create(bzBy, RemoveSelf::create(true), nullptr));
 		
