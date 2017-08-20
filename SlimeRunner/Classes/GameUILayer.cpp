@@ -137,12 +137,12 @@ void GameUILayer::updateGauge()
 void GameUILayer::setupGauge()
 {
     // Sprite node for background
-    _gaugeBar = Sprite::create("PNG/UI_pack/yellow_button13.png");
+    _gaugeBar = Sprite::create("PNG/UI_Pack/yellow_button13.png");
     _gaugeBar->setPosition(_visibleSize.width * .1f, _visibleSize.height * .03f);
     _gaugeBar->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
 
     // progess bar?
-    auto gaugeBar = ProgressTimer::create(Sprite::create("PNG/UI_pack/yellow_button_fill.png"));
+    auto gaugeBar = ProgressTimer::create(Sprite::create("PNG/UI_Pack/yellow_button_fill.png"));
     gaugeBar->setType(ProgressTimer::Type::BAR);
     gaugeBar->setBarChangeRate(Vec2(1.f, 0.f));
     gaugeBar->setMidpoint(Vec2(0.f, .5f));
@@ -155,8 +155,9 @@ void GameUILayer::setupGauge()
     // icon
     _skillIcon = Sprite::create("PNG/skillIcon.png");
     _skillIcon->setAnchorPoint(Vec2::ANCHOR_MIDDLE_RIGHT);
-    _skillIcon->setPosition(_gaugeBar->getPositionX(), _gaugeBar->getPositionY() + _gaugeBar->getContentSize().height * .5f + 2.f);
-    this->addChild(_skillIcon);
+    _skillIcon->setPosition(0.f, _gaugeBar->getContentSize().height * .5f + 2.f );
+	_skillIcon->setName("icon");
+	_gaugeBar->addChild(_skillIcon);
 
     this->addChild(_gaugeBar);
 
@@ -164,7 +165,7 @@ void GameUILayer::setupGauge()
 	auto touchListener = EventListenerTouchOneByOne::create();
 	touchListener->onTouchBegan = CC_CALLBACK_2(GameUILayer::OnTouchBegan, this);
 	touchListener->setSwallowTouches(true);
-	this->_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, _skillIcon);
+	this->_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, _gaugeBar);
 
 	auto scaleTo = ScaleTo::create(.5f, 1.2f);
 	auto scaleToRev = ScaleTo::create(.5f, 1.f);
@@ -185,14 +186,22 @@ void GameUILayer::setupGauge()
 bool GameUILayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 {
 	// touch on button
-    if(event->getCurrentTarget() == _skillIcon){
+	if (event->getCurrentTarget() == _gaugeBar){
 		// find out which one is touched and proceed to selected stage
-		auto target = (Sprite*)(event->getCurrentTarget());
+		auto target = (ProgressTimer*)(event->getCurrentTarget());
+		auto icon = (Sprite*)(event->getCurrentTarget()->getChildByName("icon"));
 
+		// gauge itself
 		auto locInNode = target->convertToNodeSpace(touch->getLocation());
 		auto size = target->getContentSize();
 		auto rect = Rect(0, 0, size.width, size.height);
-		if (rect.containsPoint(locInNode)){
+		// skill icon
+		auto locInIcon = icon->convertToNodeSpace(touch->getLocation());
+		auto iconSize = icon->getContentSize();
+		auto iconRect = Rect(0, 0, iconSize.width, iconSize.height);
+
+		// both can activate skill
+		if (rect.containsPoint(locInNode) || iconRect.containsPoint(locInIcon)){
 			CCLOG("button touch");
 			if (_gameLayer->_playerCharacter->getGauge() >= 50.f){
 				_gameLayer->_playerCharacter->increaseGauge(-50.f);

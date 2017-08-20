@@ -25,7 +25,7 @@ bool GameLayer::init()
 
 
 	/************************************************************************/
-#ifdef COCOS2D_DEBUG	
+#ifdef _DEBUG	
 	auto keyListener = EventListenerKeyboard::create();
 	auto pointerToMod = &_speedModifier;
 	keyListener->onKeyPressed = [pointerToMod](EventKeyboard::KeyCode keyCode, Event* event){
@@ -396,7 +396,7 @@ void GameLayer::scheduleRandomGust(float dt)
 
 
 	// random gust pushes player back 
-	auto moveBy = MoveBy::create(1.5f, Vec2(-random(150.f, 300.f), 0.f));
+	auto moveBy = MoveBy::create(2.5f, Vec2(-random(200.f, 350.f), 0.f));
 	_playerCharacter->runAction(moveBy);
 
 

@@ -1,7 +1,7 @@
 #include "AppDelegate.h"
 #include "TitleScene.h"
 
-#ifdef COCOS2D_DEBUG
+#ifdef _DEBUG
 #include "vld.h"
 #endif
 
