@@ -47,7 +47,7 @@ private:
 	void loadPlatforms();
 
 	// setup schedule for obstacle spawn
-	void scheduleObstacleSpawns(float dt);
+	void scheduleBeeSpawns(float dt);
 	void scheduleRandomGust(float dt);
 
 
@@ -127,7 +127,7 @@ private:
 	float _defaultPlayerPosX;
 
 	// obstacle spawn rate
-	float _obstacleSpawnRate;
+	float _beeSpawnRate;
 	float _gustSpawnRate;
 
 	// string to be used to define sprite paths for stages

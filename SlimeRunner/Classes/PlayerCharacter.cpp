@@ -18,19 +18,25 @@ PlayerCharacter* PlayerCharacter::create()
 void PlayerCharacter::initOptions()
 {
     this->setFlippedX(true);
-    this->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
 
     _playerHealth = 10;
     _isInvincible = false;
     _isMidAir = true;
-    _skillGauge = 0.f;
+    _skillGauge = 100.f;
+	_isEnlarged = false;
 
     // set move animation
     // move animation has two frames
-    auto spriteFrame0 = SpriteFrame::create("PNG/Enemies/slimePurple.png", this->getBoundingBox());
-    auto spriteFrame1 = SpriteFrame::create("PNG/Enemies/slimePurple_move.png", this->getBoundingBox());
-    spriteFrame0->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-    spriteFrame1->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+    auto spriteFrame0 = SpriteFrame::create("PNG/Enemies/slimePurple.png", Rect(Vec2::ZERO, this->getContentSize()));
+	auto spriteFrame1 = SpriteFrame::create("PNG/Enemies/slimePurple_move.png", Rect(Vec2::ZERO, this->getContentSize()));
+
+	cocos2d::Texture2D::TexParams texParams = { GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE };
+
+	spriteFrame0->getTexture()->generateMipmap();
+	spriteFrame0->getTexture()->setTexParameters(texParams);
+	spriteFrame1->getTexture()->generateMipmap();
+	spriteFrame1->getTexture()->setTexParameters(texParams);
+
 
     auto moveAnimation = Animation::create();
     moveAnimation->setDelayPerUnit(0.15f);
@@ -40,6 +46,7 @@ void PlayerCharacter::initOptions()
     _moveAnimate = RepeatForever::create(Animate::create(moveAnimation));
 	_moveAnimate->retain();
 
+	this->setAnchorPoint(Vec2::ANCHOR_MIDDLE_BOTTOM);
 
 }
 
@@ -52,4 +59,15 @@ void PlayerCharacter::runBlink()
 
 	
 	this->runAction(Sequence::create(Spawn::create(blink, moveBy, nullptr), CallFuncN::create(CC_CALLBACK_0(PlayerCharacter::setHit, this, false)), nullptr));
+}
+
+void PlayerCharacter::skillEnlarge(float scale, bool enlarge)
+{
+	// get large
+	auto scaleTo = ScaleTo::create(0.5, scale);
+	scaleTo->setTag(51);
+	this->runAction(scaleTo);
+	this->stopActionByTag(31);
+	_isEnlarged = enlarge;
+	
 }

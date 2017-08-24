@@ -77,7 +77,9 @@ void GameLayer::update(float dt){
 			// update passed number of pixels
 			_pixelsPassed += _scrollSpeed * _speedModifier;
 
-			_speedModifier += dt * 0.005f;
+			// upto 2x times faster than starting speed
+			_speedModifier = MIN(_speedModifier + dt * 0.01f * (1 + _stageNumber), 2.f);
+			CCLOG("%f", _speedModifier);
 
 			break;
 		case GAME_STATE::PAUSED:
@@ -248,7 +250,6 @@ void GameLayer::playerPhysics()
 	for (auto tile : _tilePlatforms){
 		// hits ground
 		if (tile->getBoundingBox().intersectsRect(_playerCharacter->getBoundingBox())){
-			auto a = _playerCharacter->getBoundingBox();
 
 			_playerCharacter->setMidAir(false);
 
@@ -256,7 +257,8 @@ void GameLayer::playerPhysics()
 			if (_reverseFall < 0)
 				_playerCharacter->setPositionY(tile->getPositionY() + tile->getContentSize().height);
 			else
-				_playerCharacter->setPositionY(tile->getPositionY() - _playerCharacter->getContentSize().height);
+				_playerCharacter->setPositionY(tile->getPositionY());
+
 
 			// reset fall speed
 			_fallSpeed = 0.f;
@@ -277,10 +279,9 @@ void GameLayer::playerPhysics()
 		   */
 	checkCollision();
 
-
-
 	// player dies if goes past game sceern
-	if (_playerCharacter->getPositionX() + _playerCharacter->getContentSize().width / 2.f <= 0.f){
+
+	if (_playerCharacter->getPositionX() <= 0.f){
 		//die
 		// change sprite to dead
 		_playerCharacter->stopAllActions();
@@ -291,14 +292,21 @@ void GameLayer::playerPhysics()
 
 		this->pause();
 		gameOverSequence();
+		
 	}
 
 	// store last position of the player
 	_lastPosition = _playerCharacter->getPosition();
+	_lastPosition.x += _playerCharacter->getContentSize().width * .3f;
+
+	// check if skill is active
+	if (_playerCharacter->isEnlarged() && _playerCharacter->getGauge() <= 0.f){
+		_playerCharacter->skillEnlarge(1.f, false);
+	}
 
 }
 
-void GameLayer::scheduleObstacleSpawns(float dt)
+void GameLayer::scheduleBeeSpawns(float dt)
 {
 	// there are 
 	auto obstacleNode = Node::create();
@@ -368,9 +376,9 @@ void GameLayer::scheduleObstacleSpawns(float dt)
 
 
 	// randomize spawn rate
-	_obstacleSpawnRate = random(8.f, 13.f);
+	_beeSpawnRate = random(8.f, 13.f);
 
-	this->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleObstacleSpawns), _obstacleSpawnRate);
+	this->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleBeeSpawns), _beeSpawnRate);
 }
 
 void GameLayer::scheduleRandomGust(float dt)
@@ -383,9 +391,9 @@ void GameLayer::scheduleRandomGust(float dt)
 
 		cloud->setPosition(_visibleSize.width + random(50.f, 500.f), random(0.f, _visibleSize.height * .9f));
 		ccBezierConfig bzConfig;
-		bzConfig.controlPoint_1 = Vec2(-400.f - random(100.f, 400.f), -random(50.f, 100.f));
-		bzConfig.controlPoint_2 = Vec2(-800.f - random(100.f, 400.f), - random(0.f, 50.f));
-		bzConfig.endPosition = Vec2(-1200.f - random(100.f, 400.f), _visibleSize.height);
+		bzConfig.controlPoint_1 = Vec2(-400.f - random(50.f, 500.f), -random(50.f, 100.f));
+		bzConfig.controlPoint_2 = Vec2(-800.f - random(50.f, 500.f), -random(0.f, 50.f));
+		bzConfig.endPosition = Vec2(-1200.f - random(50.f, 500.f), _visibleSize.height);
 		auto bzBy = BezierBy::create(2.f, bzConfig);
 		cloud->runAction(Sequence::create(bzBy, RemoveSelf::create(true), nullptr));
 		
@@ -396,9 +404,11 @@ void GameLayer::scheduleRandomGust(float dt)
 
 
 	// random gust pushes player back 
-	auto moveBy = MoveBy::create(2.5f, Vec2(-random(200.f, 350.f), 0.f));
-	_playerCharacter->runAction(moveBy);
-
+	if (!_playerCharacter->isEnlarged()){
+		auto moveBy = MoveBy::create(2.f, Vec2(-random(400.f, 700.f), 0.f));
+		_playerCharacter->runAction(moveBy);
+		moveBy->setTag(31);
+	}
 
 	// randomize spawn rate
 	_gustSpawnRate = random(15.f, 20.f);
@@ -426,7 +436,8 @@ void GameLayer::gameOverSequence()
 
 	_playerCharacter->runAction(sequence);
 
-	this->unschedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleObstacleSpawns));
+	this->unschedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleBeeSpawns));
+	this->unschedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleRandomGust));
 
 	// enable touch listener
 	this->_eventDispatcher->resumeEventListenersForTarget(this);
@@ -442,7 +453,7 @@ void GameLayer::restartComponents()
 
 	_reverseFall = -1;
 
-	_obstacleSpawnRate = 8.f;
+	_beeSpawnRate = 8.f;
 	_gustSpawnRate = 15.f;
 
 	_pixelsPassed = 0.f;
@@ -475,7 +486,8 @@ void GameLayer::restartComponents()
 
 void GameLayer::updateScore(float dt)
 {
-	*_score += _scrollSpeed * _speedModifier * dt * 5.f;
+	// people like larger number..?
+	*_score += _scrollSpeed * _speedModifier * dt * 10.f;
 }
 
 void GameLayer::startGame()
@@ -856,59 +868,13 @@ void GameLayer::spawnObstacle(OBSTACLE_TYPE obstacleType)
 
 void GameLayer::checkCollision()
 {
-	for (auto obs : _obstacles){
-		// check if the object is lethal
-		if (obs->getName() == "lethal"){
+	//for (auto obs : _obstacles){
+	for (auto it = _obstacles.begin(); it != _obstacles.end();){
+		// if player is enlarged, breakes (*it)tacles
+		if (_playerCharacter->isEnlarged()){
+			
 
-			// lethal objects have slightly smaller bounding box for easier difficulty 
-			auto obsRect = obs->getBoundingBox();
-			// certain % off from all four sides
-			float offPercent = 0.2f;
-			obsRect.origin += obsRect.size * offPercent;
-			obsRect.size = obsRect.size * (1.f - offPercent * 2.f);
-
-			auto playerRect = _playerCharacter->getBoundingBox();
-
-
-			auto playerBoundingBox = _playerCharacter->getBoundingBox();
-
-
-			// 10% off from left
-			playerBoundingBox.origin += Vec2(playerBoundingBox.size.width * .1f, 0.f);
-			// 80% of the original bounding box
-			playerBoundingBox.size = Vec2(playerBoundingBox.size.width * .8f, playerBoundingBox.size.height);
-
-			if (obsRect.intersectsRect(playerBoundingBox)){
-				// only triggers when player is hurtable
-				if (!_playerCharacter->isHit()){
-					_playerCharacter->setHit(true);
-					_gameUILayer->updateHealth();
-
-					if (_playerCharacter->isDead()){
-						// change sprite to dead
-						_playerCharacter->stopAllActions();
-						_playerCharacter->setSpriteFrame(Sprite::create("PNG/Enemies/slimePurple_dead.png")->getSpriteFrame());
-						_playerCharacter->setFlippedX(true);
-						_playerCharacter->setFlippedY(true);
-						*_gameState = GAME_STATE::OVER;
-
-						this->pause();
-						gameOverSequence();
-					}
-					else{
-						_playerCharacter->runBlink();
-						// loses score
-						*_score = MAX(0.0, *_score - 50.0);
-					}
-
-					// return;
-				}
-			}
-		}
-
-		// non-lethal obstacles
-		else{
-			auto obsRect = obs->getBoundingBox();
+			auto obsRect = (*it)->getBoundingBox();
 			auto playerBoundingBox = _playerCharacter->getBoundingBox();
 
 
@@ -920,25 +886,150 @@ void GameLayer::checkCollision()
 			// if collides
 			if (obsRect.intersectsRect(playerBoundingBox)){
 
-				// it pushes player when collided on side (left only)
+				auto brown = Sprite::create("PNG/Particles/brickBrown.png");
+				auto grey = Sprite::create("PNG/Particles/brickGrey.png");
 
-				// side way, slide
-				if (obsRect.getMinX() > _lastPosition.x && (_reverseFall > 0 ? _lastPosition.y + _playerCharacter->getContentSize().height > obsRect.getMinY() : _lastPosition.y < obsRect.getMaxY())){
+				auto bb = (*it)->getBoundingBox();
+				bb.origin = (*it)->getPosition();
+				int area = (*it)->getBoundingBox().size.width * (*it)->getBoundingBox().size.height;
+				auto min = MIN(5, area / 1000);
+				auto max = MAX(5, area / 1000);
+				auto num = random(min, max);
 
-					_playerCharacter->setPositionX(obsRect.getMinX() - _playerCharacter->getContentSize().width * .9f);
+				for (int i = 0; i < num; i++){
+					// random pos
+					auto posX = random(bb.getMinX(), bb.getMaxX());
+					auto posY = random(bb.getMinY(), bb.getMaxY());
+
+					Sprite* brick;
+					// brown
+					if ((int)posX % 2 == 0){
+						brick = Sprite::createWithSpriteFrame(brown->getSpriteFrame());
+					}
+					// grey
+					else{
+						brick = Sprite::createWithSpriteFrame(grey->getSpriteFrame());
+					}
+
+					MoveBy* moveBy;
+					// left or right
+					if (posX > bb.getMidX()){
+						moveBy = MoveBy::create(.75f, Vec2(random(50.f, 400.f), 0.f));
+					}
+					else{
+						moveBy = MoveBy::create(.75f, Vec2(-random(50.f, 400.f), 0.f));
+					}
+					auto moveUp = EaseOut::create(MoveBy::create(.25f, Vec2(0.f, random(200.f, 400.f))), 3.f);
+					auto moveDown = EaseIn::create(MoveBy::create(.75f, Vec2(0.f, -_visibleSize.height)), 2.f);
+
+					auto spawn = Spawn::create(moveBy, moveUp, moveDown, nullptr);
+					auto seq = Sequence::create(spawn, RemoveSelf::create(true), nullptr);
+					brick->runAction(seq);
+					brick->setPosition(posX, posY);
+					brick->setGlobalZOrder(2);
+					this->addChild(brick);
+
+					
 				}
-				else{
-					// player can stand on non lethal obstacles.
-
-					// colliding from top
-					_fallSpeed = 0.f;
-					_playerCharacter->setMidAir(false);
-					_playerCharacter->setPositionY((_reverseFall > 0) ? obsRect.getMinY() - _playerCharacter->getContentSize().height : obsRect.getMaxY());
-
-
-				}
+				// remove from vector
+				(*it)->removeFromParentAndCleanup(true);
+				it = _obstacles.erase(it);
 
 			}
+			// has not collided
+			else{
+				++it;
+			}
+		}
+		else{
+
+			// check if the object is lethal
+			if ((*it)->getName() == "lethal"){
+
+				// lethal objects have slightly smaller bounding box for easier difficulty 
+				auto obsRect = (*it)->getBoundingBox();
+				// certain % off from all four sides
+				float offPercent = 0.2f;
+				obsRect.origin += obsRect.size * offPercent;
+				obsRect.size = obsRect.size * (1.f - offPercent * 2.f);
+
+				auto playerRect = _playerCharacter->getBoundingBox();
+
+
+				auto playerBoundingBox = _playerCharacter->getBoundingBox();
+
+
+				// 10% off from left
+				playerBoundingBox.origin += Vec2(playerBoundingBox.size.width * .1f, 0.f);
+				// 80% of the original bounding box
+				playerBoundingBox.size = Vec2(playerBoundingBox.size.width * .8f, playerBoundingBox.size.height);
+
+				if (obsRect.intersectsRect(playerBoundingBox)){
+					// only triggers when player is hurtable
+					if (!_playerCharacter->isHit()){
+						_playerCharacter->setHit(true);
+						_gameUILayer->updateHealth();
+
+						if (_playerCharacter->isDead()){
+							// change sprite to dead
+							_playerCharacter->stopAllActions();
+							_playerCharacter->setSpriteFrame(Sprite::create("PNG/Enemies/slimePurple_dead.png")->getSpriteFrame());
+							_playerCharacter->setFlippedX(true);
+							_playerCharacter->setFlippedY(true);
+							*_gameState = GAME_STATE::OVER;
+
+							this->pause();
+							gameOverSequence();
+						}
+						else{
+							_playerCharacter->runBlink();
+							// loses score
+							*_score = MAX(0.0, *_score - 50.0);
+						}
+
+						// return;
+					}
+				}
+			}
+
+			// non-lethal (*it)tacles
+			else{
+				auto obsRect = (*it)->getBoundingBox();
+				auto playerBoundingBox = _playerCharacter->getBoundingBox();
+
+
+				// 10% off from left
+				playerBoundingBox.origin += Vec2(playerBoundingBox.size.width * .1f, 0.f);
+				// 80% of the original bounding box
+				playerBoundingBox.size = Vec2(playerBoundingBox.size.width * .8f, playerBoundingBox.size.height);
+
+				// if collides
+				if (obsRect.intersectsRect(playerBoundingBox)){
+
+					// it pushes player when collided on side (left only)
+
+					// side way, slide
+					if (obsRect.getMinX() >= _lastPosition.x && (_reverseFall > 0 ? _lastPosition.y >= obsRect.getMinY() : _lastPosition.y <= obsRect.getMaxY())){
+
+						_playerCharacter->setPositionX(obsRect.getMinX() -  _playerCharacter->getContentSize().width * .9f * .5f);
+					}
+					else{
+						// player can stand on non lethal (*it)tacles.
+
+						// colliding from top
+						_fallSpeed = 0.f;
+						_playerCharacter->setMidAir(false);
+
+						_playerCharacter->setPositionY((_reverseFall > 0) ? obsRect.getMinY() : obsRect.getMaxY());
+
+
+					}
+
+				}
+			}
+
+			// next
+			++it;
 		}
 	}
 }
