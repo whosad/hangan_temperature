@@ -1,7 +1,7 @@
 #include "TitleScene.h"
 #include "SimpleAudioEngine.h"
 #include "GameScene.h"
-
+#include "MapEditorScene.h"
 
 USING_NS_CC;
 
@@ -22,6 +22,18 @@ bool TitleScene::init()
 
 #ifdef COCOS2D_DEBUG
     UserDefault::getInstance()->setIntegerForKey("unlockedStage", 2);
+
+
+	// map editor
+	auto keyListener = EventListenerKeyboard::create();
+	keyListener->onKeyPressed = [](EventKeyboard::KeyCode keyCode, Event* event){
+		if (keyCode == EventKeyboard::KeyCode::KEY_SPACE)
+			Director::getInstance()->pushScene(MapEditorScene::createScene());
+	};
+
+
+	this->_eventDispatcher->addEventListenerWithSceneGraphPriority(keyListener, this);
+
 #endif
 
     _visibleSize = Director::getInstance()->getVisibleSize();

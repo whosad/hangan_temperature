@@ -5,6 +5,7 @@
 #include "ui/CocosGUI.h"
 
 class GameScene;
+class MapEditorScene;
 
 class TitleScene : public cocos2d::Scene
 {
