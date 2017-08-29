@@ -5,7 +5,10 @@
 #stage 1   (토탈 30000 px 정도?)
 
 0:sawB
+0:sboxT
+
 200:spikeT
+0:sboxB
 
 400:boxT
 550:boxB

@@ -79,6 +79,12 @@ std::vector<std::pair<float, OBSTACLE_TYPE>> GameStageLoader::loadStage(int stag
 		else if (key == "boxT"){
 			intervalAndType.second = TAG_BOX_T;
 		}
+		else if (key == "sboxB"){
+			intervalAndType.second = TAG_SINGLE_BOX_B;
+		}
+		else if (key == "sboxT"){
+			intervalAndType.second = TAG_SINGLE_BOX_T;
+		}
 		else if (key == "stairB"){
 			intervalAndType.second = TAG_STAIR_B;
 		}

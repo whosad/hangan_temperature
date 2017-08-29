@@ -67,6 +67,9 @@ void GameLayer::update(float dt){
 			// player collision 
 			playerPhysics();
 
+			// check game over
+			isGameOver();
+
 			// score
 			updateScore(dt);
 
@@ -248,8 +251,19 @@ void GameLayer::playerPhysics()
 	}
 
 	for (auto tile : _tilePlatforms){
+
+		auto tilePosY = tile->getPositionY();
+		auto playerPosY = _playerCharacter->getPositionY();
+
 		// hits ground
 		if (tile->getBoundingBox().intersectsRect(_playerCharacter->getBoundingBox())){
+
+			// going top and hits top platform or going bottom and hits bottom
+			auto delta = abs(tilePosY - playerPosY);
+			// arbitary number 70 (little bigger than player height
+			if (delta > 70.f){
+				continue;
+			}
 
 			_playerCharacter->setMidAir(false);
 
@@ -279,21 +293,7 @@ void GameLayer::playerPhysics()
 		   */
 	checkCollision();
 
-	// player dies if goes past game sceern
 
-	if (_playerCharacter->getPositionX() <= 0.f){
-		//die
-		// change sprite to dead
-		_playerCharacter->stopAllActions();
-		_playerCharacter->setSpriteFrame(Sprite::create("PNG/Enemies/slimePurple_dead.png")->getSpriteFrame());
-		_playerCharacter->setFlippedX(true);
-		_playerCharacter->setFlippedY(true);
-		*_gameState = GAME_STATE::OVER;
-
-		this->pause();
-		gameOverSequence();
-		
-	}
 
 	// store last position of the player
 	_lastPosition = _playerCharacter->getPosition();
@@ -396,7 +396,7 @@ void GameLayer::scheduleRandomGust(float dt)
 		bzConfig.endPosition = Vec2(-1200.f - random(50.f, 500.f), _visibleSize.height);
 		auto bzBy = BezierBy::create(2.f, bzConfig);
 		cloud->runAction(Sequence::create(bzBy, RemoveSelf::create(true), nullptr));
-		
+
 		cloud->setOpacity(170);
 
 		this->addChild(cloud);
@@ -421,6 +421,10 @@ void GameLayer::scheduleRandomGust(float dt)
 
 void GameLayer::gameOverSequence()
 {
+	// sets state to game over
+	*_gameState = GAME_STATE::OVER;
+
+	// dying animation
 	auto moveUp = MoveBy::create(.3f, Vec2(0.f, _visibleSize.height * .15f));
 	auto moveDown = MoveBy::create(.9f, Vec2(0.f, -_visibleSize.height * 1.15f));
 
@@ -486,8 +490,8 @@ void GameLayer::restartComponents()
 
 void GameLayer::updateScore(float dt)
 {
-	// people like larger number..?
-	*_score += _scrollSpeed * _speedModifier * dt * 10.f;
+	// falling behind decreases score gained
+	*_score += (_playerCharacter->getPositionX() / 10) * dt ;
 }
 
 void GameLayer::startGame()
@@ -537,6 +541,39 @@ void GameLayer::spawnObstacle(OBSTACLE_TYPE obstacleType)
 
 	switch (obstacleType)
 	{
+		// singe box top and bottom
+		case TAG_SINGLE_BOX_T:
+		{
+			auto box1 = Sprite::create("PNG/Tiles/boxCrate_double.png");
+
+			box1->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+
+			box1->setPositionY(0.f);
+
+			obstacleNode->addChild(box1);
+
+			obstacleNode->setPosition(posX, _visibleSize.height - _tilePlatforms.front()->getContentSize().height - box1->getContentSize().height);
+			obstacleNode->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height));
+
+		}
+		break;
+
+		case TAG_SINGLE_BOX_B:
+		{
+			// 3 boxes
+			auto box1 = Sprite::create("PNG/Tiles/boxCrate_double.png");
+
+			box1->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+
+			box1->setPositionY(0.f);
+
+			obstacleNode->addChild(box1);
+
+			obstacleNode->setPosition(posX, _tilePlatforms.front()->getContentSize().height);
+			obstacleNode->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height));
+		}
+		break;
+
 		// boxes top and bottom
 		case TAG_BOX_T:
 		{
@@ -632,7 +669,7 @@ void GameLayer::spawnObstacle(OBSTACLE_TYPE obstacleType)
 			obstacleNode1->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height * 2.f));
 
 			_obstacles.pushBack(obstacleNode1);
-			_obstacleLayer->addChild(obstacleNode1, 0);
+			_obstacleLayer->addChild(obstacleNode1);
 
 			// 1 box
 			auto obstacleNode2 = Node::create();
@@ -649,7 +686,7 @@ void GameLayer::spawnObstacle(OBSTACLE_TYPE obstacleType)
 			obstacleNode2->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height));
 
 			_obstacles.pushBack(obstacleNode2);
-			_obstacleLayer->addChild(obstacleNode2, 0);
+			_obstacleLayer->addChild(obstacleNode2);
 		}
 		break;
 		case TAG_STAIR_B:
@@ -696,7 +733,7 @@ void GameLayer::spawnObstacle(OBSTACLE_TYPE obstacleType)
 			obstacleNode1->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height * 2.f));
 
 			_obstacles.pushBack(obstacleNode1);
-			_obstacleLayer->addChild(obstacleNode1, 0);
+			_obstacleLayer->addChild(obstacleNode1);
 
 			// 1 box
 			auto obstacleNode2 = Node::create();
@@ -713,7 +750,7 @@ void GameLayer::spawnObstacle(OBSTACLE_TYPE obstacleType)
 			obstacleNode2->setContentSize(Size(box1->getContentSize().width, box1->getContentSize().height));
 
 			_obstacles.pushBack(obstacleNode2);
-			_obstacleLayer->addChild(obstacleNode2, 0);
+			_obstacleLayer->addChild(obstacleNode2);
 		}
 		break;
 		case TAG_SAW_T:
@@ -872,11 +909,10 @@ void GameLayer::checkCollision()
 	for (auto it = _obstacles.begin(); it != _obstacles.end();){
 		// if player is enlarged, breakes (*it)tacles
 		if (_playerCharacter->isEnlarged()){
-			
+
 
 			auto obsRect = (*it)->getBoundingBox();
 			auto playerBoundingBox = _playerCharacter->getBoundingBox();
-
 
 			// 10% off from left
 			playerBoundingBox.origin += Vec2(playerBoundingBox.size.width * .1f, 0.f);
@@ -884,7 +920,7 @@ void GameLayer::checkCollision()
 			playerBoundingBox.size = Vec2(playerBoundingBox.size.width * .8f, playerBoundingBox.size.height);
 
 			// if collides
-			if (obsRect.intersectsRect(playerBoundingBox)){
+			if (playerBoundingBox.intersectsRect(obsRect)){
 
 				auto brown = Sprite::create("PNG/Particles/brickBrown.png");
 				auto grey = Sprite::create("PNG/Particles/brickGrey.png");
@@ -929,12 +965,10 @@ void GameLayer::checkCollision()
 					brick->setGlobalZOrder(2);
 					this->addChild(brick);
 
-					
 				}
 				// remove from vector
 				(*it)->removeFromParentAndCleanup(true);
 				it = _obstacles.erase(it);
-
 			}
 			// has not collided
 			else{
@@ -976,7 +1010,6 @@ void GameLayer::checkCollision()
 							_playerCharacter->setSpriteFrame(Sprite::create("PNG/Enemies/slimePurple_dead.png")->getSpriteFrame());
 							_playerCharacter->setFlippedX(true);
 							_playerCharacter->setFlippedY(true);
-							*_gameState = GAME_STATE::OVER;
 
 							this->pause();
 							gameOverSequence();
@@ -1011,7 +1044,7 @@ void GameLayer::checkCollision()
 					// side way, slide
 					if (obsRect.getMinX() >= _lastPosition.x && (_reverseFall > 0 ? _lastPosition.y >= obsRect.getMinY() : _lastPosition.y <= obsRect.getMaxY())){
 
-						_playerCharacter->setPositionX(obsRect.getMinX() -  _playerCharacter->getContentSize().width * .9f * .5f);
+						_playerCharacter->setPositionX(obsRect.getMinX() - _playerCharacter->getContentSize().width * .9f * .5f);
 					}
 					else{
 						// player can stand on non lethal (*it)tacles.
@@ -1031,5 +1064,31 @@ void GameLayer::checkCollision()
 			// next
 			++it;
 		}
+	}
+}
+
+void GameLayer::isGameOver()
+{
+	// player dies if goes past game sceern
+
+	if (_playerCharacter->getPositionX() <= 0.f){
+		//die
+		// change sprite to dead
+		_playerCharacter->stopAllActions();
+		_playerCharacter->setSpriteFrame(Sprite::create("PNG/Enemies/slimePurple_dead.png")->getSpriteFrame());
+		_playerCharacter->setFlippedX(true);
+		_playerCharacter->setFlippedY(true);
+
+		this->pause();
+		gameOverSequence();
+
+	}
+
+	// all obstacles are gone => wins
+	if (_obstacles.size() <= 0 && _obstacleData.size() <= 0){
+		CCLOG("wins");
+		this->pause();
+		// not game over sequence, win sequence
+		gameOverSequence();
 	}
 }

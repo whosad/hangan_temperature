@@ -17,17 +17,17 @@ public:
 	CREATE_FUNC(MapEditorScene);
 
 private:
-	
-    void update(float delta) override;
 
-    void initBGandPlatform();
+	void update(float delta) override;
 
-    void initObsPanel();
-       
-    void onMouseDown(cocos2d::Event* e);
-    void onMouseMove(cocos2d::Event* e);
+	void initBGandPlatform();
 
-private: 
+	void initObsPanel();
+
+	void onMouseDown(cocos2d::Event* e);
+	void onMouseMove(cocos2d::Event* e);
+	cocos2d::Node* cloneNodeWithSprites(cocos2d::Node* _clickedItem);
+private:
 
 	const int _maxPixel = 20000;
 	enum DIRECTION{
@@ -40,18 +40,27 @@ private:
 	float _cameraScrollSpeed = 13.f;
 	float _scrollModifier = 1.f;
 
-       // x coord of left edge of the screen ( + mouse pos to find out obs position)
-       float _currentPosX;
+	// x coord of left edge of the screen ( + mouse pos to find out obs position)
+	float _currentPosX;
 
 	cocos2d::Size _visibleSize;
 
-       cocos2d::Sprite* _obsPanel;
+	cocos2d::Sprite* _obsPanel;
 
-       cocos2d::Vector<cocos2d::Sprite*> _itemList;
+	cocos2d::Vector<cocos2d::Sprite*> _itemList;
 
-       bool _isItemClicked;
+	bool _isItemClicked;
 
-       cocos2d::Sprite* _clickedItem;
+	cocos2d::Node* _clickedItem;
+
+	cocos2d::Vector<cocos2d::Node*> _obstacles;
+
+	int _multiple;
+
+	bool _lCtrlDown, _zDown;
+
+	bool _isTop;
+
 };
 
 #endif //__MAP_EDITOR_SCENE_H__

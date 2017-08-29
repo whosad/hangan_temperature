@@ -1,0 +1,14 @@
+## Stage made with maptool
+
+
+236 : sawB
+200 : sboxT
+100 : sboxB
+200 : sawB
+0 : sawT
+200 : sboxB
+272 : stairT
+478 : spikeB
+150 : boxB
+300 : sboxT
+150 : sboxB

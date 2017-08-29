@@ -75,10 +75,11 @@ private:
 	// spawn object
 	void spawnObstacle(OBSTACLE_TYPE obstacleType);
 
+	// check if game is over
+	void isGameOver();
 
 
 	void checkCollision();
-
 
 
 

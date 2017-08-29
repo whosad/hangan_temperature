@@ -68,6 +68,5 @@ void PlayerCharacter::skillEnlarge(float scale, bool enlarge)
 	scaleTo->setTag(51);
 	this->runAction(scaleTo);
 	this->stopActionByTag(31);
-	_isEnlarged = enlarge;
-	
+	_isEnlarged = enlarge;	
 }
