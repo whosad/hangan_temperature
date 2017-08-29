@@ -17,11 +17,15 @@ public:
 	CREATE_FUNC(MapEditorScene);
 
 private:
-	void initBGandPlatform();
+	
+    void update(float delta) override;
 
-	void update(float delta) override;
+    void initBGandPlatform();
 
-
+    void initObsPanel();
+       
+    void onMouseDown(cocos2d::Event* e);
+    void onMouseMove(cocos2d::Event* e);
 
 private: 
 
@@ -36,7 +40,18 @@ private:
 	float _cameraScrollSpeed = 13.f;
 	float _scrollModifier = 1.f;
 
+       // x coord of left edge of the screen ( + mouse pos to find out obs position)
+       float _currentPosX;
+
 	cocos2d::Size _visibleSize;
+
+       cocos2d::Sprite* _obsPanel;
+
+       cocos2d::Vector<cocos2d::Sprite*> _itemList;
+
+       bool _isItemClicked;
+
+       cocos2d::Sprite* _clickedItem;
 };
 
 #endif //__MAP_EDITOR_SCENE_H__
