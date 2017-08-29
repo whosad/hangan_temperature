@@ -21,14 +21,16 @@ bool TitleScene::init()
     }
 
 #ifdef COCOS2D_DEBUG
-    UserDefault::getInstance()->setIntegerForKey("unlockedStage", 2);
 
+	UserDefault::getInstance()->setIntegerForKey("unlockedStage", 2);
+	FileUtils::getInstance()->writeStringToFile("FindMeOnAndroid\n", "STAGES/aa.txt");
 
 	// map editor
 	auto keyListener = EventListenerKeyboard::create();
 	keyListener->onKeyPressed = [](EventKeyboard::KeyCode keyCode, Event* event){
-		if (keyCode == EventKeyboard::KeyCode::KEY_SPACE)
+		if (keyCode == EventKeyboard::KeyCode::KEY_SPACE){
 			Director::getInstance()->pushScene(MapEditorScene::createScene());
+		}
 	};
 
 
