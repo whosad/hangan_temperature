@@ -57,7 +57,7 @@ bool MapEditorScene::init()
 			*mod = 8.f;
 		}
 		else if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_SHIFT){
-			*mul = 10.f;
+			*mul = 8.f;
 		}
 		else if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_CTRL){
 			*lctrl = true;
@@ -118,7 +118,7 @@ bool MapEditorScene::init()
 			*mod = 1.f;
 		}
 		else if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_SHIFT){
-			*mul = 100.f;
+			*mul = 128.f;
 		}
 
 		else if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_CTRL){
@@ -296,7 +296,6 @@ void MapEditorScene::onMouseDown(cocos2d::Event* event){
 
 					// manual midpoiot
 					box1->setPosition(0.f, 128.f);
-					//box2->setPosition(-64.f, -64.f);
 					box3->setPosition(0.f, -128.f);
 
 					_clickedItem->addChild(box1);

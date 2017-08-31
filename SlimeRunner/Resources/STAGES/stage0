@@ -25,3 +25,24 @@
 300:boxB
 
 
+## Stage made with maptool
+
+
+800 : sboxT
+144 : spikeT
+136 : sboxB
+0 : sboxT
+128 : stairB
+376 : spikeT
+8 : stairB
+384 : sboxB
+128 : sboxB
+40 : sawT
+88 : sboxB
+88 : sawT
+40 : sboxB
+124 : sboxB
+124 : boxB
+136 : spikeB
+160 : stairT
+384 : sawB
