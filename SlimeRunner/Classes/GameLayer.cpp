@@ -82,7 +82,6 @@ void GameLayer::update(float dt){
 
 			// upto 2x times faster than starting speed
 			_speedModifier = MIN(_speedModifier + dt * 0.01f * (1 + _stageNumber), 2.f);
-			CCLOG("%f", _speedModifier);
 
 			break;
 		case GAME_STATE::PAUSED:
@@ -294,11 +293,6 @@ void GameLayer::playerPhysics()
 	checkCollision();
 
 
-
-	// store last position of the player
-	_lastPosition = _playerCharacter->getPosition();
-	_lastPosition.x += _playerCharacter->getContentSize().width * .3f;
-
 	// check if skill is active
 	if (_playerCharacter->isEnlarged() && _playerCharacter->getGauge() <= 0.f){
 		_playerCharacter->skillEnlarge(1.f, false);
@@ -508,33 +502,36 @@ void GameLayer::startGame()
 
 void GameLayer::obstacleSpawnFromData(float dt)
 {
-	// keep spawning while there is data
-	if (!_obstacleData.empty()){
+	// data is not empty
+	if (_obstacleData.empty())
+		return;
 
-		// if pixel count has reached
-		if (_obstacleData.front().first <= 0.f){
+	// subtract traveled distance
+	_obstacleData.front().first -= (_speedModifier * _scrollSpeed);
 
-			do{
-				// spawn data.second 
-				spawnObstacle(_obstacleData.front().second);
+	// while distance is <= 0
+	while (_obstacleData.front().first <= 0.f){
+		// spawn data.second
+		spawnObstacle();
 
-				// remove
-				_obstacleData.erase(_obstacleData.begin());
+		// remove
+		_obstacleData.erase(_obstacleData.begin());
+	
+		if (_obstacleData.empty())
+			return;
 
-				// keep spawning if next pixel inverval is 0
-			} while (!_obstacleData.empty() && _obstacleData.front().first == 0);
-
-		}
-		else{
-			_obstacleData.front().first -= _speedModifier * _scrollSpeed;
-		}
+		_obstacleData.front().first -= (_speedModifier * _scrollSpeed);
 
 	}
 }
 
-void GameLayer::spawnObstacle(OBSTACLE_TYPE obstacleType)
+void GameLayer::spawnObstacle()
 {
-	auto posX = _visibleSize.width + 50.f + _obstacleData.front().first;
+	OBSTACLE_TYPE obstacleType = _obstacleData.front().second;
+
+	auto posX = _visibleSize.width + 50.f - _obstacleData.front().first;
+
+	CCLOG("delat: %f", _obstacleData.front().first);
 
 	auto obstacleNode = Node::create();
 	obstacleNode->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
@@ -1042,7 +1039,8 @@ void GameLayer::checkCollision()
 					// it pushes player when collided on side (left only)
 
 					// side way, slide
-					if (obsRect.getMinX() >= _lastPosition.x && (_reverseFall > 0 ? _lastPosition.y > obsRect.getMinY() : _lastPosition.y < obsRect.getMaxY())){
+					if (obsRect.getMinX() >= _playerCharacter->getPositionX() + _playerCharacter->getContentSize().width * .3f &&
+						(_reverseFall > 0 ? _playerCharacter->getPositionY() > obsRect.getMinY() : _playerCharacter->getPositionY() < obsRect.getMaxY())){
 
 						_playerCharacter->setPositionX(obsRect.getMinX() - _playerCharacter->getContentSize().width * .9f * .5f);
 					}

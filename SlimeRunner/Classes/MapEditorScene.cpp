@@ -27,7 +27,7 @@ bool MapEditorScene::init()
 	_zDown = false;
 	_isTop = false;
 
-	_multiple = 100.f;
+	_multiple = 128.f;
 
 	this->scheduleUpdate();
 
@@ -86,7 +86,7 @@ bool MapEditorScene::init()
 				for(auto obs : *obsVec){
 
 					// min = _visibleSize.width + 50.f
-					int pos = obs->getPositionX() - obs->getTag() - pixelsPassed;
+					int pos = obs->getPositionX() - pixelsPassed;
 					pixelsPassed += pos;
 					auto name = obs->getName();
 					CCLOG("%d : %s", pos, name.c_str());
@@ -277,6 +277,7 @@ void MapEditorScene::onMouseDown(cocos2d::Event* event){
 				_clickedItem->setPositionX(_clickedItem->getPositionX() + _currentPosX);
 				_clickedItem->setCascadeOpacityEnabled(true);
 				_clickedItem->setOpacity(200);
+				_clickedItem->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
 				
 				_clickedItem->setTag(64);
 
@@ -285,7 +286,7 @@ void MapEditorScene::onMouseDown(cocos2d::Event* event){
 
 				if (name == "sbox"){
 					auto box1 = Sprite::create("PNG/Tiles/boxCrate_double.png");
-
+					box1->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
 					_clickedItem->addChild(box1);
 				}
 				else if (name == "box"){
@@ -298,6 +299,11 @@ void MapEditorScene::onMouseDown(cocos2d::Event* event){
 					box1->setPosition(0.f, 128.f);
 					box3->setPosition(0.f, -128.f);
 
+					box1->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
+					box2->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
+					box3->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
+
+
 					_clickedItem->addChild(box1);
 					_clickedItem->addChild(box2);
 					_clickedItem->addChild(box3);
@@ -308,14 +314,17 @@ void MapEditorScene::onMouseDown(cocos2d::Event* event){
 					auto box2 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
 					auto box3 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
 
-					box1->setPosition(128.f , 128.f);
-					box2->setPosition(128.f , 0.f);
-					box3->setPosition(128.f , -128.f);
+					box1->setPosition(256.f , 128.f);
+					box2->setPosition(256.f , 0.f);
+					box3->setPosition(256.f , -128.f);
 
 					box1->setName("left1");
 					box2->setName("left2");
 					box3->setName("left3");
 
+					box1->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
+					box2->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
+					box3->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
 
 					_clickedItem->addChild(box1);
 					_clickedItem->addChild(box2);
@@ -328,8 +337,11 @@ void MapEditorScene::onMouseDown(cocos2d::Event* event){
 					auto box5 = Sprite::createWithSpriteFrame(box1->getSpriteFrame());
 
 
-					box4->setPosition(0.f, 0.f);
-					box5->setPosition(0.f, -128.f);
+					box4->setPosition(128.f, 0.f);
+					box5->setPosition(128.f, -128.f);
+
+					box4->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
+					box5->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
 
 					box4->setName("midup1");
 					box5->setName("midup2");
@@ -343,7 +355,9 @@ void MapEditorScene::onMouseDown(cocos2d::Event* event){
 					
 					box6->setName("up2");
 
-					box6->setPosition(-128.f, -128.f);
+					box6->setPosition(0.f, -128.f);
+
+					box6->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
 
 					_clickedItem->addChild(box6);
 					_clickedItem->setTag(64 + 128);
@@ -354,12 +368,16 @@ void MapEditorScene::onMouseDown(cocos2d::Event* event){
 					auto saw = Sprite::create("PNG/Enemies/sawHalf.png");
 					saw->setName("sprite");
 
+					saw->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
+
 					_clickedItem->addChild(saw);
 
 				}
 				else if (name == "spike"){
 					auto spike = Sprite::create("PNG/Tiles/spikes.png");
 					spike->setName("sprite");
+
+					spike->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
 
 					_clickedItem->addChild(spike);
 
@@ -444,24 +462,24 @@ void MapEditorScene::onMouseMove(cocos2d::Event* event){
 			auto box6 = _clickedItem->getChildByName<Sprite*>("up2");
 
 			if (_isTop){
-				box1->setPosition(-128.f, 128.f);
-				box2->setPosition(-128.f, 0.f);
-				box3->setPosition(-128.f, -128.f);
+				box1->setPosition(0.f, 128.f);
+				box2->setPosition(0.f, 0.f);
+				box3->setPosition(0.f, -128.f);
 
-				box4->setPosition(0.f, 0.f);
-				box5->setPosition(0.f, +128.f);
+				box4->setPosition(128.f, 0.f);
+				box5->setPosition(128.f, +128.f);
 
-				box6->setPosition(128.f, +128.f);			
+				box6->setPosition(256.f, +128.f);			
 			}
 			else{
-				box1->setPosition(128.f, 128.f);
-				box2->setPosition(128.f, 0.f);
-				box3->setPosition(128.f, -128.f);
+				box1->setPosition(0.f, 128.f);
+				box2->setPosition(0.f, 0.f);
+				box3->setPosition(0.f, -128.f);
 
-				box4->setPosition(0.f, 0.f);
-				box5->setPosition(0.f, -128.f);
+				box4->setPosition(128.f, 0.f);
+				box5->setPosition(128.f, -128.f);
 
-				box6->setPosition(-128.f, -128.f);
+				box6->setPosition(256.f, -128.f);
 			}
 		
 		}
@@ -478,7 +496,7 @@ void MapEditorScene::onMouseMove(cocos2d::Event* event){
 		}
 
 
-
+		CCLOG("%f", cursorPos.x);
 		_clickedItem->setPosition(cursorPos);
 	}
 }
@@ -490,7 +508,7 @@ cocos2d::Node* MapEditorScene::cloneNodeWithSprites(cocos2d::Node* _clickedItem)
 	newNode->setPosition(_clickedItem->getPosition());
 	newNode->setAnchorPoint(_clickedItem->getAnchorPoint());
 
-	newNode->setTag(_clickedItem->getTag());
+	//newNode->setTag(_clickedItem->getTag());
 	auto newName = _clickedItem->getName();
 	newName.append(_isTop ? "T" : "B");
 	newNode->setName(newName);
@@ -499,7 +517,7 @@ cocos2d::Node* MapEditorScene::cloneNodeWithSprites(cocos2d::Node* _clickedItem)
 	for (auto child : children){
 		auto childSpr = (Sprite*)child;
 		auto spr = Sprite::createWithSpriteFrame(childSpr->getSpriteFrame());
-
+		spr->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
 		spr->setPosition(childSpr->getPosition());
 		spr->setFlippedY(childSpr->isFlippedY());
 		newNode->addChild(spr);

@@ -73,14 +73,13 @@ private:
 	void obstacleSpawnFromData(float dt);
 
 	// spawn object
-	void spawnObstacle(OBSTACLE_TYPE obstacleType);
+	void spawnObstacle();
 
 	// check if game is over
 	void isGameOver();
 
 
 	void checkCollision();
-
 
 
 
@@ -142,8 +141,6 @@ private:
 	float _pixelsPassed;
 
 
-	// last position to identify which direction the player is colliding with obstacles
-	cocos2d::Vec2 _lastPosition;
 
 	// holds background
 	cocos2d::Node* _backgroundLayer = nullptr;

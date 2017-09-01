@@ -1,7 +1,10 @@
 #include "TitleScene.h"
 #include "SimpleAudioEngine.h"
 #include "GameScene.h"
+
+#ifdef COCOS2D_DEBUG
 #include "MapEditorScene.h"
+#endif
 
 USING_NS_CC;
 
