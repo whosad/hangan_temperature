@@ -3,46 +3,69 @@
 ###############################
 
 #stage 1  
-
-0:sawB
-0:sboxT
-
-200:spikeT
-0:sboxB
-
-400:boxT
-550:boxB
-
-300:stairT
-225:stairB
-
-600:spikeB
- 150 :boxB
- 350 : sawT
- 225 : sawB
- 400 : stairT
-200:spikeB
-300:boxB
-
-
 ## Stage made with maptool
 
 
-800 : sboxT
-144 : spikeT
-136 : sboxB
+256 : sboxB
+128 : sboxB
+512 : sboxT
+128 : sboxT
+128 : sboxT
+256 : boxB
+512 : stairT
+256 : stairB
+384 : spikeB
+256 : spikeT
+216 : sawT
+424 : sboxB
+128 : sboxB
+128 : boxB
+128 : sboxB
+128 : sboxB
+128 : boxB
+128 : sawT
+0 : boxB
+128 : boxB
+128 : sboxB
+128 : sboxB
+0 : sawT
+256 : spikeB
+256 : spikeT
+128 : sboxT
+128 : sboxB
+0 : sboxT
+128 : sboxB
+0 : sboxT
+128 : sboxB
+0 : sboxT
+128 : sboxB
+0 : sboxT
+128 : sboxB
 0 : sboxT
 128 : stairB
-376 : spikeT
-8 : stairB
+0 : sboxT
 384 : sboxB
+128 : sboxT
+0 : sboxB
+128 : sboxT
+0 : sboxB
+128 : sboxT
+0 : sboxB
 128 : sboxB
-40 : sawT
-88 : sboxB
+128 : boxB
+208 : sawB
+208 : sawB
+208 : sboxT
+0 : sboxB
+128 : sboxB
+256 : spikeT
+128 : spikeT
+128 : spikeB
+128 : spikeB
+128 : spikeT
+0 : sboxB
+128 : spikeT
+0 : sboxB
+128 : sboxB
 88 : sawT
 40 : sboxB
-124 : sboxB
-124 : boxB
-136 : spikeB
-160 : stairT
-384 : sawB

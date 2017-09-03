@@ -23,6 +23,13 @@ bool TitleScene::init()
         return false;
     }
 
+
+	/**********************************************************************************
+	// remove userdefault file
+	auto userDefaultFilePath = FileUtils::getInstance()->getWritablePath() + "UserDefault.xml";
+	remove(userDefaultFilePath.c_str());
+	**********************************************************************************/
+
 #ifdef COCOS2D_DEBUG
 
 	UserDefault::getInstance()->setIntegerForKey("unlockedStage", 2);
@@ -37,9 +44,10 @@ bool TitleScene::init()
 			Director::getInstance()->pushScene(MapEditorScene::createScene());
 		}
 	};
+	this->_eventDispatcher->addEventListenerWithSceneGraphPriority(keyListener, this);
+
 #endif
 
-	this->_eventDispatcher->addEventListenerWithSceneGraphPriority(keyListener, this);
 
 #endif
 

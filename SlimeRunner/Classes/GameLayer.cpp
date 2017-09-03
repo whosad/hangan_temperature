@@ -439,7 +439,7 @@ void GameLayer::gameOverSequence()
 
 	// enable touch listener
 	this->_eventDispatcher->resumeEventListenersForTarget(this);
-
+	UserDefault::getInstance()->setIntegerForKey("unlockedStage", _stageNumber + 1);
 }
 
 void GameLayer::restartComponents()
@@ -516,7 +516,7 @@ void GameLayer::obstacleSpawnFromData(float dt)
 
 		// remove
 		_obstacleData.erase(_obstacleData.begin());
-	
+
 		if (_obstacleData.empty())
 			return;
 

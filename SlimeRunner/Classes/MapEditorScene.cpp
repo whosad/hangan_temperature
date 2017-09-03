@@ -472,14 +472,14 @@ void MapEditorScene::onMouseMove(cocos2d::Event* event){
 				box6->setPosition(256.f, +128.f);			
 			}
 			else{
-				box1->setPosition(0.f, 128.f);
-				box2->setPosition(0.f, 0.f);
-				box3->setPosition(0.f, -128.f);
+				box1->setPosition(256.f, 128.f);
+				box2->setPosition(256.f, 0.f);
+				box3->setPosition(256.f, -128.f);
 
 				box4->setPosition(128.f, 0.f);
 				box5->setPosition(128.f, -128.f);
 
-				box6->setPosition(256.f, -128.f);
+				box6->setPosition(0.f, -128.f);
 			}
 		
 		}
