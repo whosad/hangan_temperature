@@ -23,31 +23,9 @@ bool TitleScene::init()
         return false;
     }
 
-
-	/**********************************************************************************
-	// remove userdefault file
-	auto userDefaultFilePath = FileUtils::getInstance()->getWritablePath() + "UserDefault.xml";
-	remove(userDefaultFilePath.c_str());
-	**********************************************************************************/
-
 #ifdef COCOS2D_DEBUG
 
 	UserDefault::getInstance()->setIntegerForKey("unlockedStage", 2);
-
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
-	//FileUtils::getInstance()->writeStringToFile("FindMeOnAndroid\n", path);
-
-	// map editor
-	auto keyListener = EventListenerKeyboard::create();
-	keyListener->onKeyPressed = [](EventKeyboard::KeyCode keyCode, Event* event){
-		if (keyCode == EventKeyboard::KeyCode::KEY_SPACE){
-			Director::getInstance()->pushScene(MapEditorScene::createScene());
-		}
-	};
-	this->_eventDispatcher->addEventListenerWithSceneGraphPriority(keyListener, this);
-
-#endif
-
 
 #endif
 
@@ -302,6 +280,7 @@ void TitleScene::onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d:
     // back button for android
     if(keyCode == EventKeyboard::KeyCode::KEY_BACK){
 #else
+
     // backspace for windows debugging
     if(keyCode == EventKeyboard::KeyCode::KEY_BACKSPACE){
 #endif
@@ -315,6 +294,15 @@ void TitleScene::onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d:
             Director::getInstance()->end();
         }
     }
+
+    if(keyCode == EventKeyboard::KeyCode::KEY_SPACE){
+        Director::getInstance()->pushScene(MapEditorScene::createScene());
+    }
+    else if(keyCode == EventKeyboard::KeyCode::KEY_ESCAPE){
+        // remove userdefault file
+        UserDefault::getInstance()->setIntegerForKey("unlockedStage", 0);
+    }
+
 }
 
 void TitleScene::hideSelectionMenu()

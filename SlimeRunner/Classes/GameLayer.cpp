@@ -439,7 +439,6 @@ void GameLayer::gameOverSequence()
 
 	// enable touch listener
 	this->_eventDispatcher->resumeEventListenersForTarget(this);
-	UserDefault::getInstance()->setIntegerForKey("unlockedStage", _stageNumber + 1);
 }
 
 void GameLayer::restartComponents()
@@ -1085,8 +1084,13 @@ void GameLayer::isGameOver()
 	// all obstacles are gone => wins
 	if (_obstacles.size() <= 0 && _obstacleData.size() <= 0){
 		CCLOG("wins");
+       
+              UserDefault::getInstance()->setIntegerForKey("unlockedStage", _stageNumber + 1);
+              /*
+
 		this->pause();
 		// not game over sequence, win sequence
 		gameOverSequence();
+              */
 	}
 }

@@ -66,7 +66,7 @@ void GameUILayer::setupScoreLabel()
 	_scoreLabel = Label::createWithCharMap("PNG/HUD/hudNumbers.png", 64, 128, 48);
 	_scoreLabel->setAlignment(TextHAlignment::LEFT, TextVAlignment::CENTER);
 	_scoreLabel->setAnchorPoint(Vec2::ANCHOR_TOP_LEFT);
-	_scoreLabel->setPosition(_visibleSize.width * 0.03f, _visibleSize.height * .98f);
+	_scoreLabel->setPosition(_visibleSize.width * 0.03f, _visibleSize.height + 10.f);
 	this->addChild(_scoreLabel, 0);
 
 
@@ -105,7 +105,8 @@ void GameUILayer::setupHealthBar()
 	for (int i = 0; i < 5; i++){
 		auto heartClone = Sprite::createWithSpriteFrame(heart->getSpriteFrame());
 		heartClone->setAnchorPoint(Vec2::ANCHOR_TOP_RIGHT);
-		heartClone->setPosition(_visibleSize.width - heartClone->getContentSize().width * .8f * (i), _visibleSize.height * .98f);
+              heartClone->setScale(.75f);
+              heartClone->setPosition(_visibleSize.width - heartClone->getContentSize().width * .6f * (i), _visibleSize.height);
 		_healthIcons.pushBack(heartClone);
 		this->addChild(heartClone);
 	}
