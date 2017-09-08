@@ -1096,6 +1096,8 @@ void GameLayer::winGameSequence(){
     // unlock next stage
     UserDefault::getInstance()->setIntegerForKey("unlockedStage", _stageNumber + 1);
 
+    _playerCharacter->skillEnlarge(1.f, false);
+
     // castle and dude
     showCastleAndDude();
 
@@ -1111,7 +1113,8 @@ void GameLayer::winGameSequence(){
     auto spin = ScaleTo::create(.15f, .0f, 1.f, 1.f);
     auto spinBack = ScaleTo::create(.15f, 1.f, 1.f, 1.f);
     auto rpt = RepeatForever::create(Sequence::create(spin, spinBack, nullptr));
-    for(int i = 0; i < 40; i++){
+    int numOfStars = random(30, 40);
+    for(int i = 0; i < numOfStars; i++){
         auto starClone = Sprite::createWithSpriteFrame(star->getSpriteFrame());
         starClone->setPosition(_visibleSize.width / 2 + random(-400, 400), _visibleSize.height / 2 + random(-250, 250));
         starClone->setGlobalZOrder(3);
@@ -1170,7 +1173,7 @@ void GameLayer::scheduleLerpSpeedmod(float dt)
         this->unschedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleLerpSpeedmod));
     }
 
-    _speedModifier *= .9f;
+    _speedModifier *= .93f;
 }
 
 void GameLayer::showCastleAndDude(){
@@ -1194,7 +1197,7 @@ void GameLayer::showCastleAndDude(){
     dude->setFlippedX(true);
     dude->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
     dude->setPositionY(castleL->getPositionY());
-    dude->setPositionX(castleL->getPositionX() + dude->getContentSize().width);
+    dude->setPositionX(castleL->getPositionX() - dude->getContentSize().width);
     rmt->addChild(dude);
 
     auto animation = Animation::create();
@@ -1209,7 +1212,19 @@ void GameLayer::showCastleAndDude(){
 
     auto spawn = Spawn::create(jumpBy, animate, nullptr);
 
-    dude->runAction(Sequence::create(DelayTime::create(3.f), spawn, nullptr));
+    auto rightAnimation = Animation::create();
+    rightAnimation->setDelayPerUnit(.3f);
+    rightAnimation->addSpriteFrameWithFile("PNG/Ending/soldier_walk1.png");
+    rightAnimation->addSpriteFrameWithFile("PNG/Ending/soldier_walk2.png");
+    rightAnimation->setLoops(3);
+
+    auto rightAnimate = Animate::create(rightAnimation);
+    auto moveRight = MoveBy::create(1.5f, Vec2(400.f, 0.f));
+    
+    auto rightSpawn = Spawn::create(rightAnimate, moveRight, nullptr);
+
+    auto seq = Sequence::create(DelayTime::create(3.f), spawn, CallFunc::create([dude](){dude->setFlippedX(false); }), rightSpawn, RemoveSelf::create(), nullptr);
+    dude->runAction(seq);
 
     auto castleR = Sprite::create("PNG/Ending/castleRightHalf.png");
     castleR->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
