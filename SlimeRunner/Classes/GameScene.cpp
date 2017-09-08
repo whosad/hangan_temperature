@@ -27,8 +27,6 @@ bool GameScene::init()
      _visibleSize = Director::getInstance()->getVisibleSize();
 //     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     
-	 // game
-
 
      // game layer holds actual gameplay sprites and stuff
      _gameLayer = GameLayer::create();

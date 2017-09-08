@@ -23,7 +23,6 @@ bool GameLayer::init()
 
 
 
-
 	/************************************************************************/
 #ifdef _DEBUG	
 	auto keyListener = EventListenerKeyboard::create();
@@ -415,9 +414,6 @@ void GameLayer::scheduleRandomGust(float dt)
 
 void GameLayer::gameOverSequence()
 {
-	// sets state to game over
-	*_gameState = GAME_STATE::OVER;
-
 	// dying animation
 	auto moveUp = MoveBy::create(.3f, Vec2(0.f, _visibleSize.height * .15f));
 	auto moveDown = MoveBy::create(.9f, Vec2(0.f, -_visibleSize.height * 1.15f));
@@ -434,11 +430,7 @@ void GameLayer::gameOverSequence()
 
 	_playerCharacter->runAction(sequence);
 
-	this->unschedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleBeeSpawns));
-	this->unschedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleRandomGust));
-
-	// enable touch listener
-	this->_eventDispatcher->resumeEventListenersForTarget(this);
+	stopGameState();
 }
 
 void GameLayer::restartComponents()
@@ -464,6 +456,8 @@ void GameLayer::restartComponents()
 	_obstacleLayer = Node::create();
 	_platformLayer = Node::create();
 
+	_wonGame = false;
+
 	this->addChild(_backgroundLayer);
 	this->addChild(_obstacleLayer);
 	this->addChild(_platformLayer);
@@ -483,8 +477,10 @@ void GameLayer::restartComponents()
 
 void GameLayer::updateScore(float dt)
 {
-	// falling behind decreases score gained
-	*_score += (_playerCharacter->getPositionX() / 10) * dt ;
+	if (!_wonGame){
+		// falling behind decreases score gained
+		*_score += (_playerCharacter->getPositionX() / 10) * dt;
+	}
 }
 
 void GameLayer::startGame()
@@ -1084,13 +1080,92 @@ void GameLayer::isGameOver()
 	// all obstacles are gone => wins
 	if (_obstacles.size() <= 0 && _obstacleData.size() <= 0){
 		CCLOG("wins");
-       
-              UserDefault::getInstance()->setIntegerForKey("unlockedStage", _stageNumber + 1);
-              /*
-
-		this->pause();
-		// not game over sequence, win sequence
-		gameOverSequence();
-              */
+		if (!_wonGame)
+			winGameSequence();
 	}
+}
+
+
+void GameLayer::winGameSequence(){
+	_wonGame = true;
+	// unlock next stage
+	UserDefault::getInstance()->setIntegerForKey("unlockedStage", _stageNumber + 1);
+
+
+
+	this->unschedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleBeeSpawns));
+	this->unschedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleRandomGust));
+	// lerp speed mod to .3f
+	this->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleLerpSpeedmod), .1f);
+
+	// actions to celebrate 
+
+
+	auto star = Sprite::create("PNG/Items/star.png");
+	auto spin = ScaleTo::create(.15f,.0f, 1.f, 1.f);
+	auto spinBack = ScaleTo::create(.15f, 1.f, 1.f, 1.f);
+	auto rpt = RepeatForever::create(Sequence::create(spin, spinBack, nullptr));
+	for (int i = 0; i < 40; i++){
+		auto starClone = Sprite::createWithSpriteFrame(star->getSpriteFrame());
+		starClone->setPosition(_visibleSize.width / 2 + random(-400, 400), _visibleSize.height / 2 +random(-250, 250));
+		starClone->setGlobalZOrder(3);
+		starClone->setScaleX(random(.0f, 1.f));
+		
+		MoveBy* moveBy;
+		// left or right
+		if (starClone->getPositionX() >= _visibleSize.width /2){
+			moveBy = MoveBy::create(1.75f, Vec2(random(50.f, 400.f), 0.f));
+		}
+		else{
+			moveBy = MoveBy::create(1.75f, Vec2(-random(50.f, 400.f), 0.f));
+		}
+		auto moveUp = EaseOut::create(MoveBy::create(1.25f, Vec2(0.f, random(200.f, 400.f))), 3.f);
+		auto moveDown = EaseIn::create(MoveBy::create(1.75f, Vec2(0.f, -_visibleSize.height)), 2.f);
+
+		auto spawn = Spawn::create(moveBy, moveUp, moveDown, nullptr);
+		auto seq = Sequence::create(spawn, RemoveSelf::create(true), nullptr);
+
+
+		starClone->runAction(seq);
+		starClone->runAction(rpt->clone());
+		this->addChild(starClone);
+	}
+
+	this->addChild(star);
+	star->runAction(rpt->clone());
+	star->setPosition(100, 100);
+
+	auto seq = Sequence::create(DelayTime::create(3.f), CallFunc::create(CC_CALLBACK_0(GameLayer::stopGameState, this)), nullptr);
+
+	this->runAction(seq);
+
+
+}
+
+void GameLayer::stopGameState()
+{
+
+	// pause the game
+	this->pause();
+
+	// sets state to game over
+	*_gameState = GAME_STATE::OVER;
+
+	this->unschedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleBeeSpawns));
+	this->unschedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleRandomGust));
+
+	// enable touch listener
+	this->_eventDispatcher->resumeEventListenersForTarget(this);
+
+}
+
+void GameLayer::scheduleLerpSpeedmod(float dt)
+{
+
+	if (_speedModifier <= .05f){
+		this->unschedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleLerpSpeedmod));
+		_speedModifier = 0.f;
+	}
+
+	_speedModifier *= .85f;
 }

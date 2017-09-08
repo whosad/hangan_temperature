@@ -78,6 +78,15 @@ private:
 	// check if game is over
 	void isGameOver();
 
+	// wins game
+	void winGameSequence();
+
+
+	void scheduleLerpSpeedmod(float dt);
+
+
+	void stopGameState();
+
 
 	void checkCollision();
 
@@ -139,6 +148,8 @@ private:
 
 	// pixels passed since the start
 	float _pixelsPassed;
+
+	bool _wonGame;
 
 
 

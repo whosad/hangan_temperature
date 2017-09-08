@@ -262,7 +262,7 @@ bool GameUILayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 				if (_gameLayer->_stageNumber >= 2){
 					_gameLayer->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleBeeSpawns), _gameLayer->_beeSpawnRate);
 				}
-				else if (_gameLayer->_stageNumber >= 1){
+				if (_gameLayer->_stageNumber >= 1){
 					_gameLayer->schedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleRandomGust), _gameLayer->_gustSpawnRate);
 				}
 

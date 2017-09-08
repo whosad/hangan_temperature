@@ -296,7 +296,9 @@ void TitleScene::onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d:
     }
 
     if(keyCode == EventKeyboard::KeyCode::KEY_SPACE){
+#ifdef COCOS2D_DEBUG
         Director::getInstance()->pushScene(MapEditorScene::createScene());
+#endif
     }
     else if(keyCode == EventKeyboard::KeyCode::KEY_ESCAPE){
         // remove userdefault file
