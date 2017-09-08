@@ -91,6 +91,8 @@ private:
 	void checkCollision();
 
 
+       void showCastleAndDude();
+
 
 
 

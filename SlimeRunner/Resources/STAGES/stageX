@@ -1,28 +1,11 @@
 ## Stage made with maptool
 
 
-256 : boxT
-128 : boxT
-128 : boxT
-0 : spikeB
-128 : boxT
-0 : spikeB
-128 : boxT
-0 : spikeB
-128 : boxT
-0 : spikeB
-128 : stairT
-0 : spikeB
+640 : spikeB
 128 : spikeB
-128 : stairB
-384 : spikeT
-0 : boxB
-128 : boxB
-128 : boxB
-128 : sboxB
-128 : sboxT
-0 : sboxB
-128 : sboxB
-0 : sboxT
-128 : sboxB
-0 : sboxT
+128 : spikeB
+256 : sawB
+256 : sawB
+256 : sawB
+0 : sawT
+256 : sawT
