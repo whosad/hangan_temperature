@@ -43,10 +43,16 @@ bool GameUILayer::init()
 void GameUILayer::update(float dt)
 {
 
-	updateScore();
-	updateGauge();
 
+	if (*_gameState == GAME_STATE::PLAYING){
+		updateScore();
+		updateGauge();
 
+	}
+	else 	if (*_gameState == GAME_STATE::OVER){
+		
+
+	}
 }
 
 void GameUILayer::updateScore()
@@ -187,7 +193,7 @@ void GameUILayer::setupGauge()
 bool GameUILayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 {
 	// touch on button
-	if (event->getCurrentTarget() == _gaugeBar){
+	if (event->getCurrentTarget() == _gaugeBar && !_gameLayer->_wonGame){
 		// find out which one is touched and proceed to selected stage
 		auto target = (ProgressTimer*)(event->getCurrentTarget());
 		auto icon = (Sprite*)(event->getCurrentTarget()->getChildByName("icon"));
@@ -270,23 +276,25 @@ bool GameUILayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 
 			case GAME_STATE::OVER:
 
-				/************************************************************************/
-				/* 사실 게임 오버때는 여기 말고 UI에서 터치 처리해야됨                     */
-				/************************************************************************/
-				CCLOG("Game over and touched");
+				// restart button touched
+				auto locInView = touch->getLocationInView();
+				auto rect = Rect(200, 400, 200, 400);
+				if (rect.containsPoint(locInView)){
 
-				// clean up and reset componets
-				_gameLayer->removeAllChildrenWithCleanup(true);
+					CCLOG("Game over and touched");
 
-				_gameLayer->_backgrounds.clear();
-				_gameLayer->_tilePlatforms.clear();
-				_gameLayer->_obstacles.clear();
+					// clean up and reset componets
+					_gameLayer->removeAllChildrenWithCleanup(true);
 
-				_gameLayer->restartComponents();
-				resetHealth();
+					_gameLayer->_backgrounds.clear();
+					_gameLayer->_tilePlatforms.clear();
+					_gameLayer->_obstacles.clear();
 
-				*_gameState = GAME_STATE::PAUSED;
+					_gameLayer->restartComponents();
+					resetHealth();
 
+					*_gameState = GAME_STATE::PAUSED;
+				}
 				break;
 
 		}

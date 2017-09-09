@@ -1110,23 +1110,26 @@ void GameLayer::winGameSequence(){
 
 
     auto star = Sprite::create("PNG/Items/star.png");
-    auto spin = ScaleTo::create(.15f, .0f, 1.f, 1.f);
-    auto spinBack = ScaleTo::create(.15f, 1.f, 1.f, 1.f);
-    auto rpt = RepeatForever::create(Sequence::create(spin, spinBack, nullptr));
+    auto spin = RotateBy::create(3.f, 360*8);
+    //auto spinBack = ScaleTo::create(.15f, 1.f, 1.f, 1.f);
+    //auto rpt = RepeatForever::create(Sequence::create(spin, spinBack, nullptr));
     int numOfStars = random(30, 40);
     for(int i = 0; i < numOfStars; i++){
         auto starClone = Sprite::createWithSpriteFrame(star->getSpriteFrame());
         starClone->setPosition(_visibleSize.width / 2 + random(-400, 400), _visibleSize.height / 2 + random(-250, 250));
-        starClone->setGlobalZOrder(3);
-        starClone->setScaleX(random(.0f, 1.f));
+		starClone->setRotation(random(0, 360));
+		starClone->setScale(random(.5f, 1.f));
 
         MoveBy* moveBy;
         // left or right
         if(starClone->getPositionX() >= _visibleSize.width / 2){
             moveBy = MoveBy::create(1.75f, Vec2(random(0.f, 400.f), 0.f));
+			starClone->runAction(spin->clone());
+
         }
         else{
             moveBy = MoveBy::create(1.75f, Vec2(-random(0.f, 400.f), 0.f));
+			starClone->runAction(spin->clone()->reverse());
         }
         auto moveUp = EaseOut::create(MoveBy::create(1.25f, Vec2(0.f, random(200.f, 400.f))), 3.f);
         auto moveDown = EaseIn::create(MoveBy::create(1.75f, Vec2(0.f, -_visibleSize.height)), 2.f);
@@ -1136,12 +1139,11 @@ void GameLayer::winGameSequence(){
 
 
         starClone->runAction(seq);
-        starClone->runAction(rpt->clone());
-        this->addChild(starClone);
+        _gameUILayer->addChild(starClone);
     }
 
 
-    auto seq = Sequence::create(DelayTime::create(10.f), CallFunc::create(CC_CALLBACK_0(GameLayer::stopGameState, this)), nullptr);
+    auto seq = Sequence::create(DelayTime::create(5.5f), CallFunc::create(CC_CALLBACK_0(GameLayer::stopGameState, this)), nullptr);
 
     this->runAction(seq);
 
@@ -1173,7 +1175,7 @@ void GameLayer::scheduleLerpSpeedmod(float dt)
         this->unschedule(CC_SCHEDULE_SELECTOR(GameLayer::scheduleLerpSpeedmod));
     }
 
-    _speedModifier *= .93f;
+    _speedModifier *= .92f;
 }
 
 void GameLayer::showCastleAndDude(){
@@ -1219,7 +1221,7 @@ void GameLayer::showCastleAndDude(){
     rightAnimation->setLoops(3);
 
     auto rightAnimate = Animate::create(rightAnimation);
-    auto moveRight = MoveBy::create(1.5f, Vec2(400.f, 0.f));
+    auto moveRight = MoveBy::create(1.2f, Vec2(330.f, 0.f));
     
     auto rightSpawn = Spawn::create(rightAnimate, moveRight, nullptr);
 
