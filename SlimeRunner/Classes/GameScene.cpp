@@ -27,16 +27,16 @@ bool GameScene::init()
      _visibleSize = Director::getInstance()->getVisibleSize();
 //     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     
+	 // ui layer only holds ui components
+     _gameUILayer = GameUILayer::create();
+	 _gameUILayer->setGameState(&_gameState);
+	 _gameUILayer->setScore(&_score);
 
      // game layer holds actual gameplay sprites and stuff
      _gameLayer = GameLayer::create();
      _gameLayer->setGameState(&_gameState);
      _gameLayer->setScore(&_score);
      
-	 // ui layer only holds ui components
-     _gameUILayer = GameUILayer::create();
-	 _gameUILayer->setGameState(&_gameState);
-	 _gameUILayer->setScore(&_score);
 
 	 // mutually pointing
 	 _gameUILayer->setGameLayer(_gameLayer);

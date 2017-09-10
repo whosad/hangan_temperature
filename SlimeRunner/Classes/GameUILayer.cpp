@@ -3,6 +3,7 @@
 
 #include "GameScene.h"
 #include "GameLayer.h"
+#include "TitleScene.h"
 
 USING_NS_CC;
 
@@ -76,6 +77,12 @@ void GameUILayer::setupScoreLabel()
 	this->addChild(_scoreLabel, 0);
 
 
+	// not a right place but..
+	auto popup = Sprite::create("PNG/Ending/end_popup.png");
+	popup->setPosition(_visibleSize.width / 2, _visibleSize.height / 2);
+	popup->setName("endPopup");
+	popup->setVisible(false);
+	this->addChild(popup);
 }
 
 void GameUILayer::updateHealth()
@@ -183,7 +190,7 @@ void GameUILayer::setupGauge()
 	// middle indicator 
 	auto midIndicator = Sprite::create("PNG/UI_Pack/blue_sliderUp.png");
 	midIndicator->setFlippedY(true);
-	midIndicator->setScale(.4f);
+	midIndicator->setScale(.3f);
 	midIndicator->setAnchorPoint(Vec2::ANCHOR_MIDDLE_BOTTOM);
 	_gaugeBar->addChild(midIndicator);
 	midIndicator->setPosition(_gaugeBar->getContentSize().width * .5f, _gaugeBar->getContentSize().height - 10.f);
@@ -193,36 +200,39 @@ void GameUILayer::setupGauge()
 bool GameUILayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 {
 	// touch on button
-	if (event->getCurrentTarget() == _gaugeBar && !_gameLayer->_wonGame){
-		// find out which one is touched and proceed to selected stage
-		auto target = (ProgressTimer*)(event->getCurrentTarget());
-		auto icon = (Sprite*)(event->getCurrentTarget()->getChildByName("icon"));
+	if (event->getCurrentTarget() == _gaugeBar ){
+		if (!_gameLayer->_wonGame){
 
-		// gauge itself
-		auto locInNode = target->convertToNodeSpace(touch->getLocation());
-		auto size = target->getContentSize();
-		auto rect = Rect(0, 0, size.width, size.height);
-		// skill icon
-		auto locInIcon = icon->convertToNodeSpace(touch->getLocation());
-		auto iconSize = icon->getContentSize();
-		auto iconRect = Rect(0, 0, iconSize.width, iconSize.height);
+			// find out which one is touched and proceed to selected stage
+			auto target = (ProgressTimer*)(event->getCurrentTarget());
+			auto icon = (Sprite*)(event->getCurrentTarget()->getChildByName("icon"));
 
-		// both can activate skill
-		if (rect.containsPoint(locInNode) || iconRect.containsPoint(locInIcon)){
-			CCLOG("button touch");
-			// cancel skill if already active
-			if (_gameLayer->_playerCharacter->isEnlarged()){
-				_gameLayer->_playerCharacter->skillEnlarge(1.f, false);
-			}
-			else{
-				// upon activation, lose some and constant decreament
-				if (_gameLayer->_playerCharacter->getGauge() >= 50.f){
-					_gameLayer->_playerCharacter->increaseGauge(-13.f);
-					_gameLayer->_playerCharacter->skillEnlarge();
+			// gauge itself
+			auto locInNode = target->convertToNodeSpace(touch->getLocation());
+			auto size = target->getContentSize();
+			auto rect = Rect(0, 0, size.width, size.height);
+			// skill icon
+			auto locInIcon = icon->convertToNodeSpace(touch->getLocation());
+			auto iconSize = icon->getContentSize();
+			auto iconRect = Rect(0, 0, iconSize.width, iconSize.height);
+
+			// both can activate skill
+			if (rect.containsPoint(locInNode) || iconRect.containsPoint(locInIcon)){
+				CCLOG("button touch");
+				// cancel skill if already active
+				if (_gameLayer->_playerCharacter->isEnlarged()){
+					_gameLayer->_playerCharacter->skillEnlarge(1.f, false);
 				}
-			}
+				else{
+					// upon activation, lose some and constant decreament
+					if (_gameLayer->_playerCharacter->getGauge() >= 50.f){
+						_gameLayer->_playerCharacter->increaseGauge(-13.f);
+						_gameLayer->_playerCharacter->skillEnlarge();
+					}
+				}
 
-			return true;
+				return true;
+			}
 		}
 		return false;
 	}
@@ -278,8 +288,9 @@ bool GameUILayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 
 				// restart button touched
 				auto locInView = touch->getLocationInView();
-				auto rect = Rect(200, 400, 200, 400);
-				if (rect.containsPoint(locInView)){
+				auto restartRect = Rect(_visibleSize.width / 2 - 250 + 300, _visibleSize.height / 2 - 150 + 100, 100, 100); 
+				auto endRect = Rect(_visibleSize.width / 2 - 250 + 90, _visibleSize.height / 2 - 150 + 100, 100, 100);
+				if (restartRect.containsPoint(locInView)){
 
 					CCLOG("Game over and touched");
 
@@ -294,6 +305,11 @@ bool GameUILayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 					resetHealth();
 
 					*_gameState = GAME_STATE::PAUSED;
+				}
+				else if (endRect.containsPoint(locInView)){
+					this->pause();
+					_gameLayer->pause();
+					Director::getInstance()->replaceScene(TransitionFade::create(0.3f, TitleScene::create(), Color3B::BLACK));
 				}
 				break;
 

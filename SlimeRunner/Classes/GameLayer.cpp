@@ -468,6 +468,7 @@ void GameLayer::restartComponents()
     this->addChild(_platformLayer);
 
     _gameUILayer->setInstruction(true);
+	_gameUILayer->getChildByName<Sprite*>("endPopup")->setVisible(false);
 
     loadBackground();
 
@@ -1164,6 +1165,8 @@ void GameLayer::stopGameState()
 
     // enable touch listener
     this->_eventDispatcher->resumeEventListenersForTarget(this);
+
+	_gameUILayer->getChildByName<Sprite*>("endPopup")->setVisible(true);
 
 }
 

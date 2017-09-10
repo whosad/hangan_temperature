@@ -22,7 +22,7 @@ void PlayerCharacter::initOptions()
     _playerHealth = 10;
     _isInvincible = false;
     _isMidAir = true;
-    _skillGauge = 100.f;
+    _skillGauge = 0.f;
 	_isEnlarged = false;
 
     // set move animation
