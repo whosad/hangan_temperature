@@ -27,6 +27,8 @@ bool GameScene::init()
      _visibleSize = Director::getInstance()->getVisibleSize();
 //     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     
+	 CocosDenshion::SimpleAudioEngine::getInstance()->setEffectsVolume(.5f);
+
 	 // ui layer only holds ui components
      _gameUILayer = GameUILayer::create();
 	 _gameUILayer->setGameState(&_gameState);
@@ -69,6 +71,7 @@ bool GameScene::init()
 			 _gameUILayer->pause();
 			 _gameLayer->pause();
 			 Director::getInstance()->replaceScene(TransitionFade::create(0.3f, TitleScene::create(), Color3B::BLACK));
+			 CocosDenshion::SimpleAudioEngine::getInstance()->stopBackgroundMusic();
 		 }
 		 };
 	 this->_eventDispatcher->addEventListenerWithSceneGraphPriority(touchEvent, this);

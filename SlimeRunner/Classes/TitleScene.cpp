@@ -7,6 +7,7 @@
 #endif
 
 USING_NS_CC;
+using namespace CocosDenshion;
 
 Scene* TitleScene::createScene()
 {
@@ -35,6 +36,10 @@ bool TitleScene::init()
     /*
     배경화면 말고 케릭터나 바닥 타일같은건 TexturePacker로 편집해서 다시 올리겠음
     */
+
+
+
+	CocosDenshion::SimpleAudioEngine::getInstance()->setEffectsVolume(1.f);
 
 
     // 업데이트 루프 사용하게
@@ -259,16 +264,20 @@ void TitleScene::buttonTouchEvent(cocos2d::Ref* ref, cocos2d::ui::Widget::TouchE
 
         case ui::Widget::TouchEventType::ENDED:
             _startButtonLabel->setPositionY(_startButton->getContentSize().height *.5f);
+			SimpleAudioEngine::getInstance()->playEffect("SFX/click3.wav");
 
             // display stage selction menu
             setupStageSelctionMenu();
 
             break;
         default:
-            if(!_startButton->isHighlighted())
-                _startButtonLabel->setPositionY(_startButton->getContentSize().height *.5f);
-            else
-                _startButtonLabel->setPositionY(_startButton->getContentSize().height *.5f - 2.f);
+
+			if (!_startButton->isHighlighted()){
+				_startButtonLabel->setPositionY(_startButton->getContentSize().height *.5f);
+			}
+			else{
+				_startButtonLabel->setPositionY(_startButton->getContentSize().height *.5f - 2.f);
+			}
             break;
     }
 }
@@ -331,6 +340,8 @@ bool TitleScene::onStageTouchBegan(cocos2d::Touch* touch, cocos2d::Event* e)
     auto rect = Rect(0,0,size.width, size.height);
 
     if(rect.containsPoint(locInNode)){
+
+		SimpleAudioEngine::getInstance()->playEffect("SFX/click3.wav");
 
         // find out which stage number has been selected
         int selectedStage = -1;

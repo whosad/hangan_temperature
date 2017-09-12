@@ -6,7 +6,7 @@
 #endif
 
 // #define USE_AUDIO_ENGINE 1
-// #define USE_SIMPLE_AUDIO_ENGINE 1
+#define USE_SIMPLE_AUDIO_ENGINE 1
 
 #if USE_AUDIO_ENGINE && USE_SIMPLE_AUDIO_ENGINE
 #error "Don't use AudioEngine and SimpleAudioEngine at the same time. Please just select one in your game!"
@@ -106,6 +106,17 @@ bool AppDelegate::applicationDidFinishLaunching() {
 	*/
 
     register_all_packages();
+
+
+
+	SimpleAudioEngine::getInstance()->preloadEffect("SFX/click3.wav");
+	SimpleAudioEngine::getInstance()->preloadEffect("SFX/gameover.wav");
+	SimpleAudioEngine::getInstance()->preloadEffect("SFX/hurt.wav");
+	SimpleAudioEngine::getInstance()->preloadEffect("SFX/increase.wav");
+	SimpleAudioEngine::getInstance()->preloadEffect("SFX/decrease.wav");
+	SimpleAudioEngine::getInstance()->preloadEffect("SFX/win.wav");
+
+	SimpleAudioEngine::getInstance()->preloadBackgroundMusic("SFX/musicloop.mp3");
 
     // create a scene. it's an autorelease object
     auto scene = TitleScene::createScene();

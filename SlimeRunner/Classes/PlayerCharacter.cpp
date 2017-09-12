@@ -1,5 +1,5 @@
 #include "PlayerCharacter.h"
-
+#include "SimpleAudioEngine.h"
 
 USING_NS_CC;
 
@@ -63,6 +63,15 @@ void PlayerCharacter::runBlink()
 
 void PlayerCharacter::skillEnlarge(float scale, bool enlarge)
 {
+	if (enlarge){
+		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("SFX/increase.wav");
+
+	}
+	else{
+		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("SFX/decrease.wav");
+
+	}
+
 	// get large
 	auto scaleTo = ScaleTo::create(0.5, scale);
 	scaleTo->setTag(51);

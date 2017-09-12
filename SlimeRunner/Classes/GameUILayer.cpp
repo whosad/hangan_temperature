@@ -310,6 +310,7 @@ bool GameUILayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 					this->pause();
 					_gameLayer->pause();
 					Director::getInstance()->replaceScene(TransitionFade::create(0.3f, TitleScene::create(), Color3B::BLACK));
+					CocosDenshion::SimpleAudioEngine::getInstance()->stopBackgroundMusic();
 				}
 				break;
 

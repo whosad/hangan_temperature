@@ -23,6 +23,9 @@ bool GameLayer::init()
 
 
 
+	CocosDenshion::SimpleAudioEngine::getInstance()->playBackgroundMusic("SFX/musicloop.mp3", true);
+	CocosDenshion::SimpleAudioEngine::getInstance()->pauseBackgroundMusic();
+
     /************************************************************************/
 #ifdef _DEBUG	
     auto keyListener = EventListenerKeyboard::create();
@@ -290,7 +293,7 @@ void GameLayer::playerPhysics()
               obstacle collision
 
               - check every childern of obstacle node
-              - spikes and saws instakill player
+              - spikes and grws instakill player
               - other boxes push player back
 
               */
@@ -419,6 +422,11 @@ void GameLayer::scheduleRandomGust(float dt)
 
 void GameLayer::gameOverSequence()
 {
+
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("SFX/gameover.wav");
+	CocosDenshion::SimpleAudioEngine::getInstance()->pauseBackgroundMusic();
+
+
     // dying animation
     auto moveUp = MoveBy::create(.3f, Vec2(0.f, _visibleSize.height * .15f));
     auto moveDown = MoveBy::create(.9f, Vec2(0.f, -_visibleSize.height * 1.15f));
@@ -497,7 +505,7 @@ void GameLayer::startGame()
     // change game state
     *_gameState = GAME_STATE::PLAYING;
 
-
+	CocosDenshion::SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
 
 }
 
@@ -999,6 +1007,7 @@ void GameLayer::checkCollision()
                 if(obsRect.intersectsRect(playerBoundingBox)){
                     // only triggers when player is hurtable
                     if(!_playerCharacter->isHit()){
+						CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("SFX/hurt.wav");
                         _playerCharacter->setHit(true);
                         _gameUILayer->updateHealth();
 
@@ -1097,6 +1106,10 @@ void GameLayer::winGameSequence(){
     // unlock next stage
     UserDefault::getInstance()->setIntegerForKey("unlockedStage", _stageNumber + 1);
 
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("SFX/win.wav");
+	CocosDenshion::SimpleAudioEngine::getInstance()->pauseBackgroundMusic();
+
+
     _playerCharacter->skillEnlarge(1.f, false);
 
     // castle and dude
@@ -1153,6 +1166,8 @@ void GameLayer::winGameSequence(){
 
 void GameLayer::stopGameState()
 {
+
+	CocosDenshion::SimpleAudioEngine::getInstance()->pauseBackgroundMusic();
 
     // pause the game
     this->pause();
