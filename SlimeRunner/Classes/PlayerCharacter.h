@@ -34,10 +34,6 @@ public:
 	// run blinking animation when hit
 	void runBlink();
 
-	void heal(){
-		_playerHealth = MIN(_playerHealth + 1, 6);
-	};
-
 	int& getHealth(){ return _playerHealth; };
 	float& getGauge(){ return _skillGauge; };
 

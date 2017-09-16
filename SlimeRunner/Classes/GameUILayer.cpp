@@ -115,7 +115,7 @@ void GameUILayer::setupHealthBar()
 	// player has 100 hp = 5 hearts
 	auto heart = Sprite::create("PNG/HUD/hudHeart_full.png");
 
-	for (int i = 0; i < 3; i++){
+	for (int i = 0; i < 2; i++){
 		auto heartClone = Sprite::createWithSpriteFrame(heart->getSpriteFrame());
 		heartClone->setAnchorPoint(Vec2::ANCHOR_TOP_RIGHT);
               heartClone->setScale(.75f);
@@ -160,7 +160,7 @@ void GameUILayer::setupGauge()
 	gaugeBar->setType(ProgressTimer::Type::BAR);
 	gaugeBar->setBarChangeRate(Vec2(1.f, 0.f));
 	gaugeBar->setMidpoint(Vec2(0.f, .5f));
-	gaugeBar->setPercentage(30.f);
+	gaugeBar->setPercentage(0.f);
 	gaugeBar->setName("bar");
 	gaugeBar->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
 
