@@ -3,367 +3,81 @@
 ###############################
 
 
-
-# 아 몰라 시벌
-
-
-
-0 : sboxB
-896 : sboxT
-896 : boxB
-384 : boxT
-768 : stairB
-512 : sboxT
-640 : spikeB
-128 : spikeB
-384 : sawT
-128 : sawT
-512 : spikeB
-0 : sawT
-640 : boxB
-256 : boxT
-128 : stairT
-256 : stairT
-256 : stairB
-384 : boxB
-128 : boxB
-128 : boxB
-128 : sboxB
-128 : sboxB
-128 : sboxT
-0 : sboxB
-128 : sboxT
-0 : sboxB
-128 : sboxB
-0 : sboxT
-128 : spikeT
-128 : sawB
-256 : sawB
-512 : boxT
-128 : sboxT
-256 : boxB
+# 성현이
+256 : sboxB
 256 : sboxT
-256 : boxB
-640 : stairT
+0 : boxT
 256 : stairB
-768 : spikeB
-128 : spikeT
-128 : spikeT
-128 : spikeT
-128 : spikeT
-128 : spikeB
-384 : sawB
-256 : sboxB
-0 : sawT
-256 : sawB
-384 : sawT
-0 : sboxB
-384 : sawB
-
-
-
-
-
-
-
-
-#가능?  어려움.. 스킬을 쓰던지 맘대루
-
-400 : spikeT
-128 : spikeT
-
-0 : sawB
-128 : sawB
-128 : sawB
-128 : sawB
-384 : spikeB
-128 : spikeB
-0 : spikeT
-128 : spikeT
-256 : spikeB
-128 : spikeB
-128 : boxT
-256 : boxB
-256 : boxT
-128 : sboxT
-128 : stairB
-0 : sboxT
-384 : boxB
-128 : boxB
-128 : boxB
-128 : sboxB
-128 : sboxB
-128 : sboxB
-
-
-
-
-
-
-#적당히 
-
-768 : sboxB
-128 : sboxB
-384 : boxT
-512 : stairB
-768 : sboxT
-0 : sboxB
-512 : sboxT
-0 : sboxB
-640 : boxB
-384 : boxT
 512 : sawT
-256 : sawT
-384 : sawB
-256 : sawB
-512 : sboxB
-0 : spikeT
-128 : sboxT
-512 : boxB
-128 : boxB
-128 : boxB
-384 : boxT
-128 : boxT
-128 : boxT
-128 : stairT
-512 : boxB
-128 : boxB
-128 : boxB
-512 : sboxT
-256 : sboxB
-384 : sboxT
-128 : sboxB
-384 : spikeT
-256 : spikeB
-384 : sawT
-128 : stairB
-384 : boxB
-128 : boxB
-128 : boxB
-128 : boxB
-128 : sboxB
-128 : sboxT
-0 : sboxB
-128 : sboxT
-0 : spikeB
-128 : sboxT
-128 : sboxT
-
-
-
-# 에바 가시들
-
-384 : spikeT
-256 : spikeB
-256 : spikeT
-256 : spikeB
-256 : spikeT
-128 : stairB
-384 : boxB
-0 : spikeT
-128 : boxB
-0 : spikeT
-128 : boxB
-0 : spikeT
-128 : boxB
-0 : spikeT
-
-
-
-940 : sawB
-128 : sawB
-128 : sawB
-
-
-# 통로 느낌
-
-
-512 : stairB
-384 : boxB
-256 : boxT
-128 : boxT
-128 : stairT
-256 : sboxB
-128 : sboxB
-0 : sboxT
-128 : sboxB
-0 : sboxT
-128 : sboxT
-0 : sboxB
-128 : sboxB
-0 : sboxT
-128 : sboxT
-0 : sboxB
-128 : sboxT
-128 : boxT
-128 : sboxT
-128 : sboxB
-0 : sboxT
-128 : sboxT
-0 : sboxB
-128 : sboxB
-0 : sboxT
-128 : sboxT
-0 : sboxB
-
-
-
-# 좀 기본적인.. 스타일?
-828 : sboxB
-384 : sboxT
-512 : sboxB
-128 : sboxB
-128 : sboxB
-128 : sboxB
-128 : boxB
-128 : boxB
-128 : boxB
-128 : boxB
-384 : sawT
-128 : sawB
-384 : sawT
-256 : sawB
-384 : spikeT
-128 : spikeT
-128 : spikeT
-256 : spikeB
-128 : spikeB
-256 : spikeT
-128 : spikeT
-128 : spikeT
-
-
-
-#stage 1  
-## Stage made with maptool
-
-
-256 : sboxB
-128 : sboxB
-512 : sboxT
-128 : sboxT
-128 : sboxT
-256 : boxB
-512 : stairT
-256 : stairB
-384 : spikeB
-256 : spikeT
-216 : sawT
-424 : sboxB
-128 : sboxB
-128 : boxB
-128 : sboxB
-128 : sboxB
-128 : boxB
 128 : sawT
-0 : boxB
-128 : boxB
-128 : sboxB
-128 : sboxB
-0 : sawT
-256 : spikeB
-256 : spikeT
-128 : sboxT
-128 : sboxB
-0 : sboxT
-128 : sboxB
-0 : sboxT
-128 : sboxB
-0 : sboxT
-128 : sboxB
-0 : sboxT
-128 : sboxB
-0 : sboxT
-128 : stairB
-0 : sboxT
+384 : spikeB
+128 : spikeB
 384 : sboxB
 128 : sboxT
+128 : sboxT
+128 : sboxB
+384 : spikeB
+512 : sawT
+256 : boxB
+384 : boxT
+128 : spikeT
+256 : stairB
+384 : sawB
+640 : stairT
+768 : sboxB
+128 : sboxB
+128 : sboxB
+384 : sboxT
 0 : sboxB
 128 : sboxT
-0 : sboxB
 128 : sboxT
 0 : sboxB
-128 : sboxB
-128 : boxB
-208 : sawB
-208 : sawB
-208 : sboxT
-0 : sboxB
-128 : sboxB
-256 : spikeT
-128 : spikeT
+512 : spikeT
+384 : spikeB
 128 : spikeB
-128 : spikeB
+512 : spikeT
 128 : spikeT
-0 : sboxB
-128 : spikeT
-0 : sboxB
-128 : sboxB
-88 : sawT
-40 : sboxB
-
-128 : sboxB
-256 : sboxT
-128 : spikeB
-128 : boxB
-128 : boxB
-128 : boxB
-128 : sboxB
+256 : spikeB
+128 : sawB
+512 : sawB
+128 : sawB
+128 : sawB
+256 : sawT
 128 : sawT
-0 : sboxB
-128 : stairB
-
-
-
-756 : boxT
-128 : boxT
-128 : boxT
-0 : spikeB
-128 : boxT
-0 : spikeB
-128 : boxT
-0 : spikeB
-128 : boxT
-0 : spikeB
-128 : stairT
-0 : spikeB
-128 : spikeB
-128 : stairB
-384 : spikeT
-0 : boxB
-128 : boxB
-128 : boxB
-128 : sboxB
-128 : sboxT
-0 : sboxB
-128 : sboxB
-0 : sboxT
-128 : sboxB
-0 : sboxT
-
-
-
-
-
-
-912 : sboxT
-0 : sboxB
-128 : sboxT
-0 : sboxB
-128 : sboxT
-0 : sboxB
-128 : stairB
-0 : sboxT
 384 : boxB
 128 : boxB
+128 : boxB
+512 : boxT
+128 : boxT
+128 : boxT
+384 : stairB
+384 : stairB
+768 : sawT
+128 : sawT
+512 : spikeB
+128 : spikeB
+640 : boxB
+128 : boxB
+384 : boxT
+128 : boxT
+640 : sboxT
+0 : sboxB
+128 : sboxT
+0 : sboxB
+128 : sboxT
+0 : sboxB
+256 : sawT
+128 : sawT
+256 : sboxT
+0 : sboxB
 128 : sboxB
-0 : spikeT
-128 : boxB
-128 : boxB
-128 : boxB
-384 : sboxT
-0 : spikeB
-128 : stairB
+128 : sboxB
 0 : sboxT
-384 : sawT
+384 : spikeB
+128 : spikeB
+128 : spikeB
+512 : sboxB
+512 : sboxB
+512 : sboxT
+256 : sboxT
 
