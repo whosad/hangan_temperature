@@ -84,7 +84,7 @@ void GameLayer::update(float dt){
 
             // upto 2x times faster than starting speed
             if(_speedModifier > 0.f)
-                _speedModifier = MIN(_speedModifier + dt * 0.01f * (1 + _stageNumber), 2.f);
+                _speedModifier = MIN(_speedModifier + dt * 0.01f * (1 + _stageNumber * .3f), 2.f);
 
             break;
         case GAME_STATE::PAUSED:
@@ -244,8 +244,8 @@ void GameLayer::playerPhysics()
 
     // if player is behind, pull it towards default x position
     if(_playerCharacter->getPositionX() < _defaultPlayerPosX){
-        // 23% of scrolling speed
-        _playerCharacter->setPositionX(MIN(_playerCharacter->getPositionX() + _scrollSpeed * _speedModifier * .23f, _defaultPlayerPosX));
+        // 43% of scrolling speed
+        _playerCharacter->setPositionX(MIN(_playerCharacter->getPositionX() + _scrollSpeed * _speedModifier * .43f, _defaultPlayerPosX));
     }
 
     // maximum falling speed is defined in the header
@@ -312,6 +312,7 @@ void GameLayer::scheduleBeeSpawns(float dt)
     // there are 
     auto obstacleNode = Node::create();
     obstacleNode->setName("lethal");
+	obstacleNode->setTag(44);
 
     auto bee = Sprite::create("PNG/Enemies/bee.png");
     auto beeMove = Sprite::create("PNG/Enemies/bee_move.png");
@@ -406,7 +407,7 @@ void GameLayer::scheduleRandomGust(float dt)
 
     // random gust pushes player back 
     if(!_playerCharacter->isEnlarged()){
-        auto moveBy = MoveBy::create(2.f, Vec2(-random(400.f, 700.f), 0.f));
+        auto moveBy = MoveBy::create(2.f, Vec2(-random(200.f, 500.f), 0.f));
         _playerCharacter->runAction(moveBy);
         moveBy->setTag(31);
     }
@@ -970,8 +971,12 @@ void GameLayer::checkCollision()
                     brick->setPosition(posX, posY);
                     brick->setGlobalZOrder(2);
                     this->addChild(brick);
-
                 }
+
+				// if player kills bee, heal 1 health. only applicable on stage 3
+				if ((*it)->getTag() == 44){
+					_playerCharacter->heal();
+				}
                 // remove from vector
                 (*it)->removeFromParentAndCleanup(true);
                 it = _obstacles.erase(it);

@@ -19,10 +19,10 @@ void PlayerCharacter::initOptions()
 {
     this->setFlippedX(true);
 
-    _playerHealth = 4;
+    _playerHealth = 6;
     _isInvincible = false;
     _isMidAir = true;
-    _skillGauge = 0.f;
+    _skillGauge = 30.f;
 	_isEnlarged = false;
 
     // set move animation
@@ -53,7 +53,7 @@ void PlayerCharacter::initOptions()
 void PlayerCharacter::runBlink()
 {
     auto blink = Blink::create(2.f, 14);
-    auto moveBy = MoveBy::create(1.33f, Vec2(-300.f, 0));
+    auto moveBy = MoveBy::create(1.33f, Vec2(-240.f, 0));
 
     // set is hit false
 
