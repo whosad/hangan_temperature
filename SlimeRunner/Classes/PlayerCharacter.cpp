@@ -19,7 +19,7 @@ void PlayerCharacter::initOptions()
 {
     this->setFlippedX(true);
 
-    _playerHealth = 10;
+    _playerHealth = 4;
     _isInvincible = false;
     _isMidAir = true;
     _skillGauge = 0.f;

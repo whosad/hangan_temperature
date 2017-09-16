@@ -244,8 +244,8 @@ void GameLayer::playerPhysics()
 
     // if player is behind, pull it towards default x position
     if(_playerCharacter->getPositionX() < _defaultPlayerPosX){
-        // 1/3 of scrolling speed
-        _playerCharacter->setPositionX(MIN(_playerCharacter->getPositionX() + _scrollSpeed * _speedModifier * .33f, _defaultPlayerPosX));
+        // 23% of scrolling speed
+        _playerCharacter->setPositionX(MIN(_playerCharacter->getPositionX() + _scrollSpeed * _speedModifier * .23f, _defaultPlayerPosX));
     }
 
     // maximum falling speed is defined in the header
@@ -862,8 +862,8 @@ void GameLayer::spawnObstacle()
             obstacleNode->setContentSize(spike->getContentSize());
 
             // set movement
-            auto moveBy = MoveBy::create(1.f, Vec2(.0f, spike->getContentSize().height));
-            auto moveByRev = MoveBy::create(0.5f, Vec2(.0f, -spike->getContentSize().height));
+            auto moveBy = MoveBy::create(1.f, Vec2(.0f, spike->getContentSize().height * .85f));
+			auto moveByRev = MoveBy::create(0.5f, Vec2(.0f, -spike->getContentSize().height * .85f));
 
             auto repeatForever = RepeatForever::create(Sequence::create(moveBy, DelayTime::create(1.25f), moveByRev, nullptr));
             obstacleNode->runAction(repeatForever);
@@ -885,8 +885,8 @@ void GameLayer::spawnObstacle()
             obstacleNode->setContentSize(spike->getContentSize());
 
             // set movement
-            auto moveBy = MoveBy::create(1.f, Vec2(.0f, -spike->getContentSize().height));
-            auto moveByRev = MoveBy::create(0.5f, Vec2(.0f, spike->getContentSize().height));
+			auto moveBy = MoveBy::create(1.f, Vec2(.0f, -spike->getContentSize().height * .85f));
+			auto moveByRev = MoveBy::create(0.5f, Vec2(.0f, spike->getContentSize().height * .85f));
 
             auto repeatForever = RepeatForever::create(Sequence::create(moveBy, DelayTime::create(1.25f), moveByRev, nullptr));
             obstacleNode->runAction(repeatForever);

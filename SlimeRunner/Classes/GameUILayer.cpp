@@ -115,7 +115,7 @@ void GameUILayer::setupHealthBar()
 	// player has 100 hp = 5 hearts
 	auto heart = Sprite::create("PNG/HUD/hudHeart_full.png");
 
-	for (int i = 0; i < 5; i++){
+	for (int i = 0; i < 2; i++){
 		auto heartClone = Sprite::createWithSpriteFrame(heart->getSpriteFrame());
 		heartClone->setAnchorPoint(Vec2::ANCHOR_TOP_RIGHT);
               heartClone->setScale(.75f);
@@ -224,10 +224,11 @@ bool GameUILayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 					_gameLayer->_playerCharacter->skillEnlarge(1.f, false);
 				}
 				else{
-					// upon activation, lose some and constant decreament
+					// upon activation, lose some and constant decreament and RESETS speed modifier 
 					if (_gameLayer->_playerCharacter->getGauge() >= 50.f){
 						_gameLayer->_playerCharacter->increaseGauge(-13.f);
 						_gameLayer->_playerCharacter->skillEnlarge();
+						_gameLayer->_speedModifier = 1.f;
 					}
 				}
 
