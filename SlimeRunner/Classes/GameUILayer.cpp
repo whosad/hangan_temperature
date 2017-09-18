@@ -303,6 +303,8 @@ bool GameUILayer::OnTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 					_gameLayer->_obstacles.clear();
 
 					_gameLayer->restartComponents();
+					_scoreLabel->setString("0");
+					_gaugeBar->getChildByName<ProgressTimer*>("bar")->setPercentage(30.f);
 					resetHealth();
 
 					*_gameState = GAME_STATE::PAUSED;

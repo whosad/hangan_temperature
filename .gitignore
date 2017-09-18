@@ -1,4 +1,5 @@
 SlimeRunner/proj.win32/
+SlimeRunner/.idea/
 SlimeRunner/cocos2d/
 SlimeRunner/proj.android-studio/
 SlimeRunner/.cocos-project.json
@@ -7,3 +8,4 @@ SlimeRunner/CMakeLists.txt
 *.jks
 SlimeRunner/.keystore
 SlimeRunner/bin/
+SlimeRunner/firebase_cpp_sdk/

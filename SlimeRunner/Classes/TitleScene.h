@@ -4,12 +4,32 @@
 #include "cocos2d.h"
 #include "ui/CocosGUI.h"
 
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+
+#include "FirebaseHelper.h"
+
+#include "firebase/admob.h"
+#include "firebase/admob/types.h"
+#include "firebase/app.h"
+#include "firebase/future.h"
+#include "firebase/admob/banner_view.h"
+
+#include <android/log.h>
+#include <jni.h>
+#include "platform/android/jni/JniHelper.h"
+
+#endif
+
 class GameScene;
 
 class TitleScene : public cocos2d::Scene
 {
     // Methods
 public:
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+
+	~TitleScene();
+#endif
     static cocos2d::Scene* createScene();
 
     virtual bool init();
@@ -18,19 +38,19 @@ public:
     CREATE_FUNC(TitleScene);
 
 private:
-    // »ó¼Ó¹ÞÀº ¾÷µ¥ÀÌÆ® ÇÔ¼ö
+    // ï¿½ï¿½Ó¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ô¼ï¿½
     void update(float dt) override;
     
-    // ¹è°æÈ­¸é ÀÌ¹ÌÁö 2°³ À§Ä¡ ¼³Á¤ÇÏ°í ½ºÅ©·Ñ µÇ°Ô
+    // ï¿½ï¿½ï¿½È­ï¿½ï¿½ ï¿½Ì¹ï¿½ï¿½ï¿½ 2ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½Å©ï¿½ï¿½ ï¿½Ç°ï¿½
     void setupBackground();
     
-    // Å¸ÀÌÆ² ÀÌ¸§ ¼³Á¤
+    // Å¸ï¿½ï¿½Æ² ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½
     void setupTitle();
 
-    // ½ÃÀÛ ¹öÆ° ¼³Á¤
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Æ° ï¿½ï¿½ï¿½ï¿½
     void setupStartButton();
 
-    // ½ÃÀÛ¹öÆ° ÅÍÄ¡ ÄÝ¹é
+    // ï¿½ï¿½ï¿½Û¹ï¿½Æ° ï¿½ï¿½Ä¡ ï¿½Ý¹ï¿½
     void buttonTouchEvent(cocos2d::Ref* ref, cocos2d::ui::Widget::TouchEventType type);
 
     // stage selection
@@ -63,6 +83,12 @@ private:
 
     // stage selection menu
     cocos2d::Node* _stageSelectionMenu = nullptr;
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+
+	firebase::admob::BannerView* banner_view;
+
+#endif
 
 };
 

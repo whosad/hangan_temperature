@@ -1,6 +1,15 @@
 #include "AppDelegate.h"
 #include "TitleScene.h"
 
+
+#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+
+#include "firebase/app.h"
+#include "firebase/admob.h"
+
+
+#endif
+
 #ifdef _DEBUG
 #include "vld.h"
 #endif
@@ -86,7 +95,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
 
 	/*
-		½ºÄÉÀÏ ÆÑÅÍ ¹º°¡ Àß ¾ÈµÇ´Âµ¥..?
+		ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ÈµÇ´Âµï¿½..?
 
     // if the frame's height is larger than the height of medium size.
     if (frameSize.height > mediumResolutionSize.height)
@@ -117,6 +126,25 @@ bool AppDelegate::applicationDidFinishLaunching() {
 	SimpleAudioEngine::getInstance()->preloadEffect("SFX/win.wav");
 
 	SimpleAudioEngine::getInstance()->preloadBackgroundMusic("SFX/musicloop.mp3");
+
+
+
+
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	// Initialize Firebase for Android.
+	firebase::App* app = firebase::App::Create( JniHelper::getEnv(), JniHelper::getActivity());
+	// Initialize AdMob.
+	firebase::admob::Initialize(*app, "ca-app-pub-3279345120292130~9744913452");
+#elif (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+	// Initialize Firebase for iOS.
+	firebase::App* app = firebase::App::Create(firebase::AppOptions());
+	// Initialize AdMob.
+	firebase::admob::Initialize(*app, "ca-app-pub-3279345120292130~9744913452");
+	// Initialize AdMob.
+	firebase::admob::Initialize(*app);
+
+#endif
 
     // create a scene. it's an autorelease object
     auto scene = TitleScene::createScene();

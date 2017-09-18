@@ -59,6 +59,20 @@ bool TitleScene::init()
     touchEvent->onKeyReleased = CC_CALLBACK_2(TitleScene::onKeyReleased, this);
     this->_eventDispatcher->addEventListenerWithSceneGraphPriority(touchEvent, this);
 
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+
+
+	const char* kBannerAdUnit = "ca-app-pub-3279345120292130/1619011427";
+
+	banner_view = new firebase::admob::BannerView();
+	firebase::admob::AdSize ad_size;
+	ad_size.ad_size_type = firebase::admob::kAdSizeStandard;
+	ad_size.width = 320;
+	ad_size.height = 50;
+	banner_view->Initialize(getAdParent(), kBannerAdUnit, ad_size);
+#endif
+
     return true;
 }
 
@@ -74,6 +88,26 @@ void TitleScene::update(float dt)
             bg->setPositionX(bg->getPositionX() + bg->getContentSize().width * _backgroundVector.size()); // width * number of sprites
         }
     }
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	// Check that the banner has been initialized.
+	if (banner_view->InitializeLastResult().status() ==
+		firebase::kFutureStatusComplete) {
+		// Check that the banner hasn't started loading.
+		if (banner_view->LoadAdLastResult().status() ==
+			firebase::kFutureStatusInvalid) {
+			// Make the banner visible and load an ad.
+			CCLOG("Loading a banner.");
+
+			banner_view->MoveTo(firebase::admob::BannerView::Position::kPositionBottom);
+			banner_view->Show();
+			firebase::admob::AdRequest my_ad_request = {};
+			banner_view->LoadAd(my_ad_request);
+		}
+	}
+
+#endif
+
 }
 
 void TitleScene::setupBackground()
@@ -137,7 +171,7 @@ void TitleScene::setupStartButton()
 
 
     // set position
-    _startButton->setPosition(Vec2(_visibleSize.width * .5f, _visibleSize.height * .25f));
+    _startButton->setPosition(Vec2(_visibleSize.width * .5f, _visibleSize.height * .45f));
 
 }
 
@@ -303,16 +337,16 @@ void TitleScene::onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d:
             Director::getInstance()->end();
         }
     }
+#ifdef COCOS2D_DEBUG
 
     if(keyCode == EventKeyboard::KeyCode::KEY_SPACE){
-#ifdef COCOS2D_DEBUG
         Director::getInstance()->pushScene(MapEditorScene::createScene());
-#endif
     }
     else if(keyCode == EventKeyboard::KeyCode::KEY_ESCAPE){
         // remove userdefault file
         UserDefault::getInstance()->setIntegerForKey("unlockedStage", 0);
     }
+#endif
 
 }
 
@@ -339,7 +373,7 @@ bool TitleScene::onStageTouchBegan(cocos2d::Touch* touch, cocos2d::Event* e)
     auto size = target->getContentSize();
     auto rect = Rect(0,0,size.width, size.height);
 
-    if(rect.containsPoint(locInNode)){
+	if (rect.containsPoint(locInNode) && _stageSelectionMenu->isVisible()){
 
 		SimpleAudioEngine::getInstance()->playEffect("SFX/click3.wav");
 
@@ -373,3 +407,11 @@ bool TitleScene::onStageTouchBegan(cocos2d::Touch* touch, cocos2d::Event* e)
     }   
     return false;
 }
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+
+TitleScene::~TitleScene()
+{
+	banner_view->Destroy();
+}
+#endif
